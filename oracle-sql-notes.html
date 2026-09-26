@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oracle &amp; SQL — Course Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1719;
+    --bg-alt:#131e20;
+    --panel:#16211f;
+    --code:#0b1213;
+    --text:#dde7e4;
+    --text-dim:#87a19c;
+    --text-faint:#5b7671;
+    --accent:#d99a4e;
+    --accent-soft:#7a5a30;
+    --teal:#57a89c;
+    --border:#233230;
+    --border-soft:#1c2826;
+    --radius:4px;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:inherit;}
+  html{scroll-padding-top:1.2rem;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --bg:#0f1719; --bg-alt:#131e20; --panel:#16211f; --code:#0b1213;
+      --text:#dde7e4; --text-dim:#87a19c; --text-faint:#5b7671;
+      --border:#233230; --border-soft:#1c2826;
+    }
+  }
+
+  a{color:var(--teal); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  code, pre, .mono{font-family:'IBM Plex Mono', ui-monospace, Menlo, monospace;}
+
+  .layout{display:flex; min-height:100%;}
+
+  /* ---------- Sidebar ---------- */
+  #sidebar{
+    width:280px;
+    flex:0 0 280px;
+    background:var(--bg-alt);
+    border-right:1px solid var(--border);
+    position:sticky;
+    top:0;
+    top:env(safe-area-inset-top,0px);
+    height:100vh;
+    height:100dvh;
+    overflow-y:auto;
+    padding:1.4rem 1.1rem 2rem;
+  }
+  .brand{
+    font-size:0.95rem;
+    font-weight:600;
+    letter-spacing:0.01em;
+    color:var(--text);
+    margin:0 0 0.15rem;
+  }
+  .brand span{color:var(--accent);}
+  .brand-sub{
+    font-size:0.78rem;
+    color:var(--text-faint);
+    margin:0 0 1.1rem;
+  }
+  #navsearch{
+    width:100%;
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:0.45rem 0.6rem;
+    border-radius:var(--radius);
+    font-size:0.83rem;
+    margin-bottom:1rem;
+    font-family:inherit;
+  }
+  #navsearch:focus{outline:1px solid var(--teal); outline-offset:1px;}
+  .nav-group{margin-bottom:1rem;}
+  .nav-group-title{
+    font-size:0.68rem;
+    color:var(--text-faint);
+    font-weight:600;
+    letter-spacing:0.06em;
+    margin:0 0 0.35rem 0.1rem;
+  }
+  .nav-group ul{list-style:none; margin:0; padding:0;}
+  .nav-group li a{
+    display:flex;
+    gap:0.5rem;
+    align-items:baseline;
+    padding:0.28rem 0.4rem;
+    border-radius:var(--radius);
+    color:var(--text-dim);
+    font-size:0.86rem;
+  }
+  .nav-group li a:hover{background:var(--panel); text-decoration:none; color:var(--text);}
+  .nav-group li a.active{background:var(--panel); color:var(--accent);}
+  .nav-num{color:var(--text-faint); font-size:0.75rem; font-family:'IBM Plex Mono',monospace; flex:0 0 auto;}
+
+  /* ---------- Main ---------- */
+  #main{flex:1; min-width:0;}
+  .content{
+    max-width:740px;
+    margin:0 auto;
+    padding:3rem 1.6rem 6rem;
+  }
+  header.hero{
+    border-bottom:1px solid var(--border);
+    padding-bottom:1.6rem;
+    margin-bottom:2.4rem;
+  }
+  header.hero .eyebrow{
+    color:var(--accent);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.8rem;
+    margin:0 0 0.6rem;
+  }
+  header.hero h1{
+    font-size:2.1rem;
+    line-height:1.15;
+    margin:0 0 0.7rem;
+    font-weight:600;
+  }
+  header.hero p{
+    color:var(--text-dim);
+    max-width:56ch;
+    margin:0;
+  }
+
+  section.chapter{
+    margin-bottom:3.2rem;
+    scroll-margin-top:1.2rem;
+  }
+  section.chapter > .chnum{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--text-faint);
+    font-size:0.85rem;
+    margin-bottom:0.3rem;
+  }
+  section.chapter > h2{
+    font-size:1.5rem;
+    margin:0 0 0.9rem;
+    padding-bottom:0.6rem;
+    border-bottom:1px solid var(--border);
+    font-weight:600;
+  }
+  h3{
+    font-size:1.08rem;
+    margin:1.6rem 0 0.6rem;
+    color:var(--text);
+    font-weight:600;
+  }
+  h4{
+    font-size:0.98rem;
+    margin:1.2rem 0 0.4rem;
+    color:var(--accent);
+    font-weight:600;
+  }
+  p{margin:0.5rem 0 0.9rem; color:var(--text);}
+  p.note{
+    color:var(--text-dim);
+    font-size:0.92rem;
+    border-left:2px solid var(--accent-soft);
+    padding-left:0.8rem;
+    margin:0.8rem 0;
+  }
+  ul, ol{padding-left:1.3rem; margin:0.5rem 0 0.9rem;}
+  li{margin-bottom:0.25rem;}
+
+  code.inline{
+    background:var(--code);
+    border:1px solid var(--border-soft);
+    color:var(--accent);
+    padding:0.05rem 0.35rem;
+    border-radius:var(--radius);
+    font-size:0.87em;
+  }
+
+  pre{
+    background:var(--code);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:0.85rem 1rem;
+    overflow-x:auto;
+    margin:0.7rem 0 1.1rem;
+    max-width:100%;
+  }
+  pre code{color:#c9d6d2; font-size:0.86rem; line-height:1.55;}
+  pre .kw{color:var(--teal); font-weight:600;}
+  pre .out{color:var(--text-faint);}
+  .example{margin:0.6rem 0 1rem;}
+  .example .ex-label{
+    font-size:0.72rem;
+    letter-spacing:0.04em;
+    color:var(--text-faint);
+    font-family:'IBM Plex Mono',monospace;
+    margin-bottom:0.25rem;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:0.8rem 0 1.2rem;
+    font-size:0.9rem;
+  }
+  table caption{caption-side:top; text-align:left; color:var(--text-faint); font-size:0.78rem; margin-bottom:0.4rem;}
+  th, td{
+    text-align:left;
+    padding:0.5rem 0.7rem;
+    border-bottom:1px solid var(--border-soft);
+    vertical-align:top;
+  }
+  th{
+    color:var(--accent);
+    font-weight:600;
+    font-size:0.82rem;
+    border-bottom:1px solid var(--border);
+  }
+  td code, th code{font-size:0.85em;}
+  .scroll-x{overflow-x:auto;}
+
+  .subgrid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+    gap:0.4rem 1rem;
+    margin:0.6rem 0 1rem;
+  }
+  .subgrid div{
+    font-size:0.85rem;
+    color:var(--text-dim);
+    border-left:2px solid var(--border);
+    padding-left:0.6rem;
+  }
+
+  .backtotop{
+    display:inline-block;
+    margin-top:1rem;
+    font-size:0.78rem;
+    color:var(--text-faint);
+  }
+
+  footer{
+    max-width:740px;
+    margin:0 auto;
+    padding:1rem 1.6rem 3rem;
+    color:var(--text-faint);
+    font-size:0.8rem;
+    border-top:1px solid var(--border);
+  }
+
+  #menuToggle{display:none;}
+
+  @media (max-width: 880px){
+    .layout{flex-direction:column;}
+    #sidebar{
+      position:relative;
+      width:100%;
+      flex:none;
+      height:auto;
+      max-height:none;
+      border-right:none;
+      border-bottom:1px solid var(--border);
+      padding:1rem 1.1rem;
+    }
+    #navBody{display:none;}
+    #navBody.open{display:block;}
+    #menuToggle{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      width:100%;
+      background:var(--panel);
+      border:1px solid var(--border);
+      color:var(--text);
+      padding:0.55rem 0.8rem;
+      border-radius:var(--radius);
+      font-family:'IBM Plex Sans',sans-serif;
+      font-size:0.85rem;
+      margin-bottom:0.8rem;
+    }
+    .content{padding:2rem 1.1rem 4rem;}
+    header.hero h1{font-size:1.7rem;}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <nav id="sidebar" aria-label="Table of contents">
+    <p class="brand">Oracle <span>&amp;</span> SQL</p>
+    <p class="brand-sub">Course reference notes</p>
+    <button id="menuToggle" onclick="document.getElementById('navBody').classList.toggle('open')">
+      <span>Contents</span><span>&#9662;</span>
+    </button>
+    <div id="navBody">
+      <input id="navsearch" type="text" placeholder="Filter topics…" oninput="filterNav(this.value)">
+
+      <div class="nav-group" data-group="basics">
+        <p class="nav-group-title">FOUNDATIONS</p>
+        <ul>
+          <li><a href="#intro"><span class="nav-num">01</span>Database, DBMS &amp; RDBMS</a></li>
+          <li><a href="#sql-commands"><span class="nav-num">02</span>SQL command types</a></li>
+          <li><a href="#datatypes"><span class="nav-num">03</span>Oracle data types</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-group" data-group="commands">
+        <p class="nav-group-title">CORE COMMANDS</p>
+        <ul>
+          <li><a href="#ddl"><span class="nav-num">04</span>DDL commands</a></li>
+          <li><a href="#dml"><span class="nav-num">05</span>DML commands</a></li>
+          <li><a href="#drl"><span class="nav-num">06</span>DRL — Select</a></li>
+          <li><a href="#tcl"><span class="nav-num">07</span>TCL commands</a></li>
+          <li><a href="#dcl"><span class="nav-num">08</span>DCL commands</a></li>
+          <li><a href="#dual"><span class="nav-num">09</span>The dual table</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-group" data-group="operators">
+        <p class="nav-group-title">OPERATORS</p>
+        <ul>
+          <li><a href="#operators"><span class="nav-num">10</span>Operators in SQL</a></li>
+          <li><a href="#setops"><span class="nav-num">11</span>Set operators</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-group" data-group="functions">
+        <p class="nav-group-title">FUNCTIONS</p>
+        <ul>
+          <li><a href="#numfunc"><span class="nav-num">12</span>Number functions</a></li>
+          <li><a href="#strfunc"><span class="nav-num">13</span>String functions</a></li>
+          <li><a href="#datefunc"><span class="nav-num">14</span>Date functions</a></li>
+          <li><a href="#convfunc"><span class="nav-num">15</span>Conversion functions</a></li>
+          <li><a href="#genfunc"><span class="nav-num">16</span>General functions</a></li>
+          <li><a href="#aggfunc"><span class="nav-num">17</span>Aggregate functions</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-group" data-group="advanced">
+        <p class="nav-group-title">CLAUSES &amp; ANALYTICS</p>
+        <ul>
+          <li><a href="#clauses"><span class="nav-num">18</span>Clauses</a></li>
+          <li><a href="#analytical"><span class="nav-num">19</span>Analytical functions</a></li>
+          <li><a href="#pseudocols"><span class="nav-num">20</span>Pseudo columns</a></li>
+          <li><a href="#aliases"><span class="nav-num">21</span>Aliases</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-group" data-group="objects">
+        <p class="nav-group-title">CONSTRAINTS &amp; QUERIES</p>
+        <ul>
+          <li><a href="#constraints"><span class="nav-num">22</span>Constraints</a></li>
+          <li><a href="#subqueries"><span class="nav-num">23</span>Sub queries</a></li>
+          <li><a href="#importantqueries"><span class="nav-num">24</span>Important queries</a></li>
+          <li><a href="#joins"><span class="nav-num">25</span>Joins</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-group" data-group="objects2">
+        <p class="nav-group-title">DATABASE OBJECTS</p>
+        <ul>
+          <li><a href="#views"><span class="nav-num">26</span>Views</a></li>
+          <li><a href="#indexes"><span class="nav-num">27</span>Indexes</a></li>
+          <li><a href="#sequences"><span class="nav-num">28</span>Sequences</a></li>
+          <li><a href="#synonyms"><span class="nav-num">29</span>Synonyms</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-group" data-group="normal">
+        <p class="nav-group-title">DESIGN</p>
+        <ul>
+          <li><a href="#normalization"><span class="nav-num">30</span>Normalization</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div id="main">
+    <div class="content">
+
+      <header class="hero">
+        <p class="eyebrow">// course reference · oracle sql</p>
+        <h1>Oracle &amp; SQL Notes</h1>
+        <p>A working reference covering database fundamentals, SQL command families, data types, functions, joins, views, indexing and normalization — organized the way the topics are usually taught, front to back.</p>
+      </header>
+
+      <!-- 01 -->
+      <section class="chapter" id="intro">
+        <p class="chnum">01</p>
+        <h2>Database, DBMS &amp; RDBMS</h2>
+
+        <h3>Database</h3>
+        <p>A database is an organized collection of data (information) — a collection of different database objects.</p>
+
+        <h3>DBMS</h3>
+        <p>A database management system is software used to manage a database. A user or application interacts with the DBMS to perform actions on the database. Plain DBMS applications store data as files — for example XML files or the Windows Registry.</p>
+
+        <h3>RDBMS</h3>
+        <p>A relational database management system is a database built on the relational model. RDBMS applications store data in tabular form, and almost every RDBMS uses SQL for querying.</p>
+        <p>A relational database stores data in a structured format of rows and columns. Values within a table relate to each other, and tables may relate to other tables — which makes it possible to query across multiple tables at once. Examples: Oracle, MySQL, Microsoft SQL Server.</p>
+      </section>
+
+      <!-- 02 -->
+      <section class="chapter" id="sql-commands">
+        <p class="chnum">02</p>
+        <h2>SQL command types</h2>
+        <p>SQL statements are classified into five command families:</p>
+        <div class="scroll-x">
+        <table>
+          <tr><th>Family</th><th>Full name</th><th>Commands</th></tr>
+          <tr><td><code class="inline">DDL</code></td><td>Data Definition Language</td><td>Create, Alter, Truncate, Drop, Rename</td></tr>
+          <tr><td><code class="inline">DML</code></td><td>Data Manipulation Language</td><td>Insert, Update, Delete</td></tr>
+          <tr><td><code class="inline">DRL</code></td><td>Data Retrieval Language</td><td>Select</td></tr>
+          <tr><td><code class="inline">DCL</code></td><td>Data Control Language</td><td>Grant, Revoke</td></tr>
+          <tr><td><code class="inline">TCL</code></td><td>Transaction Control Language</td><td>Commit, Rollback, Savepoint</td></tr>
+        </table>
+        </div>
+      </section>
+
+      <!-- 03 -->
+      <section class="chapter" id="datatypes">
+        <p class="chnum">03</p>
+        <h2>Oracle data types</h2>
+        <div class="scroll-x">
+        <table>
+          <tr><th>Type</th><th>Description</th></tr>
+          <tr><td><code class="inline">char</code></td><td>Fixed-length character data (letters, numbers, special characters). Max 2000 bytes. Oracle always allocates the full specified length and pads unused space with blanks.</td></tr>
+          <tr><td><code class="inline">varchar</code></td><td>Variable-length character data. Max 2000 bytes; only allocates the memory actually needed.</td></tr>
+          <tr><td><code class="inline">varchar2</code></td><td>Updated version of varchar — stores up to 4000 bytes.</td></tr>
+          <tr><td><code class="inline">number(p,s)</code></td><td>Numeric-only type. <code class="inline">p</code> (precision) and <code class="inline">s</code> (scale) are optional, for restricting decimal places.</td></tr>
+          <tr><td><code class="inline">date</code></td><td>Dates only, in the default format <code class="inline">dd-mon-yy</code>. Use <code class="inline">to_date</code> to insert other formats.</td></tr>
+          <tr><td><code class="inline">timestamp</code></td><td>Dates including time — hours, minutes, seconds, microseconds.</td></tr>
+          <tr><td><code class="inline">lob</code></td><td>Large object storage. <b>clob</b> — character large object, single/multibyte characters, max 4 GB. <b>blob</b> — binary large object, max 4 GB.</td></tr>
+          <tr><td><code class="inline">bfile</code></td><td>A locator to a large binary file stored outside the database. Max 4 GB.</td></tr>
+          <tr><td><code class="inline">raw</code></td><td>Raw binary data. Max 2000 bytes.</td></tr>
+          <tr><td><code class="inline">long raw</code></td><td>Variable-length raw binary data. Max 2 GB.</td></tr>
+        </table>
+        </div>
+      </section>
+
+      <!-- 04 -->
+      <section class="chapter" id="ddl">
+        <p class="chnum">04</p>
+        <h2>DDL commands</h2>
+
+        <h3>1. Create</h3>
+        <p>Used to create objects.</p>
+        <div class="example">
+          <pre><code><span class="kw">create table</span> table_name (column1 datatype(size), column2 datatype(size)...);
+<span class="out">-- example</span>
+<span class="kw">create table</span> emp (empno varchar2(10), ename varchar2(10), salary number(10));</code></pre>
+        </div>
+
+        <h3>2. Alter</h3>
+        <p>Used to add, modify, rename, or drop a column.</p>
+
+        <h4>a) Add</h4>
+        <p>Adds a new column (or several at once).</p>
+        <pre><code><span class="kw">alter table</span> table_name <span class="kw">add</span> column_name datatype(size);
+<span class="kw">alter table</span> table_name <span class="kw">add</span> (column_name datatype(size)); <span class="out">-- multiple columns</span>
+<span class="out">-- example</span>
+<span class="kw">alter table</span> emp <span class="kw">add</span> mgr varchar2(10);</code></pre>
+
+        <h4>b) Modify</h4>
+        <p>Changes an existing column's data type or size (n columns at once).</p>
+        <pre><code><span class="kw">alter table</span> table_name <span class="kw">modify</span> column_name datatype(size);
+<span class="out">-- example</span>
+<span class="kw">alter table</span> emp <span class="kw">modify</span> salary varchar2(10);</code></pre>
+
+        <h4>c) Drop</h4>
+        <p>Removes columns from a table (n columns at once).</p>
+        <pre><code><span class="kw">alter table</span> table_name <span class="kw">drop</span> column column_name;
+<span class="out">-- example</span>
+<span class="kw">alter table</span> emp <span class="kw">drop</span> column empname;</code></pre>
+
+        <h4>d) Rename</h4>
+        <p>Renames one column at a time.</p>
+        <pre><code><span class="kw">alter table</span> table_name <span class="kw">rename</span> column old_name <span class="kw">to</span> new_name;
+<span class="out">-- example</span>
+<span class="kw">alter table</span> emp <span class="kw">rename</span> column salary <span class="kw">to</span> sal;</code></pre>
+
+        <h3>3. Drop</h3>
+        <p>Removes a database object entirely — both structure and data.</p>
+        <pre><code><span class="kw">drop table</span> emp;</code></pre>
+
+        <h3>4. Rename</h3>
+        <p>Renames a table.</p>
+        <pre><code><span class="kw">rename</span> emp <span class="kw">to</span> employee;</code></pre>
+
+        <h3>5. Truncate</h3>
+        <p>Deletes all data in a table but keeps the structure.</p>
+        <pre><code><span class="kw">truncate table</span> emp;</code></pre>
+      </section>
+
+      <!-- 05 -->
+      <section class="chapter" id="dml">
+        <p class="chnum">05</p>
+        <h2>DML commands</h2>
+
+        <h3>1. Insert</h3>
+        <p>Inserts data into the columns of a table. There are a few ways to do it.</p>
+
+        <h4>Direct method</h4>
+        <p>Values are provided directly against the table (all columns must be supplied):</p>
+        <pre><code><span class="kw">insert into</span> emp <span class="kw">values</span> ('alex', 2000, 20);</code></pre>
+        <p>To insert values for specific columns only:</p>
+        <pre><code><span class="kw">insert into</span> emp (empname) <span class="kw">values</span> ('hanuma');</code></pre>
+
+        <h4>Reference method</h4>
+        <p>Inserts multiple rows through interactive prompts:</p>
+        <pre><code><span class="kw">insert into</span> emp <span class="kw">values</span> (&amp;eno, '&amp;empname');</code></pre>
+
+        <p class="note">Oracle never makes DML changes permanent until they are committed. Character data must always be wrapped in single quotes.</p>
+
+        <h3>2. Update</h3>
+        <p>Updates existing rows based on a where condition.</p>
+        <pre><code><span class="kw">update</span> emp <span class="kw">set</span> sal = 2000 <span class="kw">where</span> empid = 123;</code></pre>
+        <p class="note">Use <code class="inline">is</code> — never <code class="inline">=</code> — to compare against null: <code class="inline">update emp set sal = 2000 where empid is null;</code></p>
+
+        <h3>3. Delete</h3>
+        <pre><code><span class="kw">delete from</span> emp; <span class="out">-- clears table content</span>
+<span class="kw">delete from</span> emp <span class="kw">where</span> ename = 'alex'; <span class="out">-- deletes specific records</span></code></pre>
+      </section>
+
+      <!-- 06 -->
+      <section class="chapter" id="drl">
+        <p class="chnum">06</p>
+        <h2>DRL — Select</h2>
+        <p>Used to retrieve the desired data from a table. You can select specific columns or <code class="inline">*</code>, and apply filters such as <code class="inline">where</code>, <code class="inline">group by</code> and <code class="inline">having</code>.</p>
+        <pre><code><span class="kw">select</span> * <span class="kw">from</span> emp;
+<span class="kw">select</span> ename, sal <span class="kw">from</span> emp;</code></pre>
+      </section>
+
+      <!-- 07 -->
+      <section class="chapter" id="tcl">
+        <p class="chnum">07</p>
+        <h2>TCL commands</h2>
+        <p>Transaction control commands are used to validate transactions.</p>
+
+        <h3>Commit</h3>
+        <p>Makes DML changes permanent.</p>
+        <pre><code><span class="kw">commit</span>;</code></pre>
+
+        <h3>Rollback</h3>
+        <p>Reverts changes made since the last commit point.</p>
+        <pre><code><span class="kw">rollback</span>;</code></pre>
+
+        <h3>Savepoint</h3>
+        <p>Marks a point in the transaction to roll back to later.</p>
+        <pre><code><span class="kw">insert into</span> emp (empno, sal) <span class="kw">values</span> (01, 2000);
+<span class="kw">savepoint</span> A;
+<span class="kw">insert into</span> emp (empno, sal) <span class="kw">values</span> (02, 3000);
+<span class="kw">savepoint</span> B;
+<span class="kw">insert into</span> emp (empno, sal) <span class="kw">values</span> (03, 4000);
+<span class="kw">savepoint</span> C;
+<span class="out">-- can now: rollback to A / B / C, or commit to A / B / C</span></code></pre>
+      </section>
+
+      <!-- 08 -->
+      <section class="chapter" id="dcl">
+        <p class="chnum">08</p>
+        <h2>DCL commands</h2>
+        <p>Data control statements enforce database security — granting defined roles and access privileges to users.</p>
+
+        <h3>Grant</h3>
+        <p>A DBA or user can grant access permissions to others.</p>
+        <pre><code><span class="kw">grant</span> [privilege] <span class="kw">on</span> [object] <span class="kw">to</span> {user | public | role};
+<span class="out">-- when a user is newly created, a DBA typically grants:</span>
+<span class="kw">grant create session to</span> alex;
+<span class="kw">grant connect resource to</span> alex;
+<span class="out">-- to let a user select from a table:</span>
+<span class="kw">grant select on</span> emp <span class="kw">to</span> alex;</code></pre>
+        <p>Privileges are permission names such as select, insert, update, delete, execute.</p>
+
+        <h3>Revoke</h3>
+        <p>Takes back an existing privilege. Only a DBA, or a user with the admin option, can revoke a system privilege.</p>
+        <pre><code><span class="kw">revoke</span> [privilege] <span class="kw">on</span> [object] <span class="kw">from</span> {user | public | role};
+<span class="out">-- example</span>
+<span class="kw">revoke select on</span> emp <span class="kw">from</span> alex;</code></pre>
+      </section>
+
+      <!-- 09 -->
+      <section class="chapter" id="dual">
+        <p class="chnum">09</p>
+        <h2>The dual table</h2>
+        <p><code class="inline">dual</code> is a dummy table with a single column (<code class="inline">dummy</code>, type <code class="inline">varchar2(1)</code>) and exactly one row holding the value <code class="inline">X</code>. It's the standard table for evaluating expressions or calling functions without needing a real table.</p>
+      </section>
+
+      <!-- 10 -->
+      <section class="chapter" id="operators">
+        <p class="chnum">10</p>
+        <h2>Operators in SQL</h2>
+
+        <h3>1. Arithmetic operators (+, -, *, /)</h3>
+        <pre><code><span class="kw">select</span> sal/2 <span class="kw">from</span> emp;
+<span class="kw">select</span> 300+400 <span class="kw">from</span> dual;</code></pre>
+
+        <h3>2. Logical operators (and, or, not)</h3>
+        <pre><code><span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> deptno = 10 <span class="kw">and</span> sal &gt; 1000;
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> deptno = 10 <span class="kw">or</span> sal &gt; 1000;
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> deptno != 10;</code></pre>
+
+        <h3>3. Relational operators</h3>
+        <div class="subgrid">
+          <div><code class="inline">=</code> equal to</div>
+          <div><code class="inline">&lt;</code> less than</div>
+          <div><code class="inline">&gt;</code> greater than</div>
+          <div><code class="inline">&lt;=</code> less than / equal</div>
+          <div><code class="inline">&gt;=</code> greater than / equal</div>
+          <div><code class="inline">!=</code> / <code class="inline">&lt;&gt;</code> not equal</div>
+        </div>
+        <pre><code><span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> salary &lt;&gt; 2000;</code></pre>
+
+        <h3>4. Special operators</h3>
+        <p><b>IS</b> — behaves like <code class="inline">=</code>, used to handle null values. Nulls must always be compared with <code class="inline">is</code>.</p>
+        <pre><code><span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> comm <span class="kw">is</span> null;
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> comm <span class="kw">is not</span> null;</code></pre>
+
+        <p><b>IN / NOT IN</b> — compares against a list of values (character, number or date):</p>
+        <pre><code><span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> sal <span class="kw">in</span> (1000, 2000, 10000);
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> manager <span class="kw">in</span> ('ram', 'martin');
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> sal <span class="kw">not in</span> (4000, 5000);</code></pre>
+
+        <p><b>BETWEEN / NOT BETWEEN</b> — a range of values:</p>
+        <pre><code><span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> sal <span class="kw">between</span> 1000 <span class="kw">and</span> 3000;
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> sal <span class="kw">not between</span> 4000 <span class="kw">and</span> 6000;</code></pre>
+
+        <p><b>LIKE / NOT LIKE</b> — pattern search. <code class="inline">%</code> is a wildcard for any run of characters, <code class="inline">_</code> matches a single character.</p>
+        <pre><code><span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> ename <span class="kw">like</span> 'ra%';
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> ename <span class="kw">like</span> 'p____';
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> ename <span class="kw">like</span> '%p%';</code></pre>
+
+        <p><b>ANY / SOME</b> — compares a value against every value in a list; must be paired with <code class="inline">=, !=, &gt;, &lt;, &gt;=, &lt;=</code>.</p>
+        <pre><code><span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> sal &gt;= <span class="kw">all</span> (1400, 3000);</code></pre>
+      </section>
+
+      <!-- 11 -->
+      <section class="chapter" id="setops">
+        <p class="chnum">11</p>
+        <h2>Set operators</h2>
+        <p>Set operators combine the results of select statements — sometimes called "virtual joins." The one precondition is that the corresponding columns share the same data type.</p>
+        <ul>
+          <li><b>Union</b> — combines results and eliminates duplicate rows.</li>
+          <li><b>Union all</b> — combines results, duplicates kept.</li>
+          <li><b>Intersect</b> — returns rows common to both queries.</li>
+          <li><b>Minus</b> — returns rows present in the first query but not the second.</li>
+        </ul>
+        <pre><code><span class="kw">select</span> empno <span class="kw">from</span> emp <span class="kw">union</span> <span class="kw">select</span> mgr <span class="kw">from</span> emp;
+<span class="kw">select</span> empno <span class="kw">from</span> emp <span class="kw">union all</span> <span class="kw">select</span> mgr <span class="kw">from</span> emp;
+<span class="kw">select</span> empno <span class="kw">from</span> emp <span class="kw">intersect</span> <span class="kw">select</span> mgr <span class="kw">from</span> emp;
+<span class="kw">select</span> empno <span class="kw">from</span> emp <span class="kw">minus</span> <span class="kw">select</span> mgr <span class="kw">from</span> emp;</code></pre>
+      </section>
+
+      <!-- 12 -->
+      <section class="chapter" id="numfunc">
+        <p class="chnum">12</p>
+        <h2>Number functions</h2>
+        <p>Functions in Oracle fall into two groups: single-row functions (number, string, date, conversion, general) and multi-row / aggregate functions. Single-row functions execute per value.</p>
+
+        <div class="scroll-x">
+        <table>
+          <tr><th>Function</th><th>Behavior</th><th>Example</th></tr>
+          <tr><td><code class="inline">power(m,n)</code></td><td>m raised to the n'th power</td><td><code class="inline">power(3,3)</code> → 27</td></tr>
+          <tr><td><code class="inline">sqrt(n)</code></td><td>Square root</td><td><code class="inline">sqrt(25)</code> → 5</td></tr>
+          <tr><td><code class="inline">mod(m,n)</code></td><td>Remainder of m/n; returns m if n is zero, errors if n is not specified</td><td><code class="inline">mod(10,3)</code> → 1</td></tr>
+          <tr><td><code class="inline">abs(m)</code></td><td>Absolute (always positive) value</td><td><code class="inline">abs(-25)</code> → 25</td></tr>
+          <tr><td><code class="inline">trunc(n1,n2)</code></td><td>Truncates n1 to n2 decimal places (0 if omitted). Negative n2 truncates digits left of the decimal.</td><td><code class="inline">trunc(125.815,2)</code> → 125.81; <code class="inline">trunc(125.815,-2)</code> → 100</td></tr>
+          <tr><td><code class="inline">round(n1,n2)</code></td><td>Rounds n1 to n2 decimal places (0 if omitted)</td><td><code class="inline">round(15.5555,2)</code> → 15.56</td></tr>
+          <tr><td><code class="inline">sign(n)</code></td><td>-1 if negative, 0 if zero, 1 if positive</td><td><code class="inline">sign(-0.1)</code> → -1</td></tr>
+          <tr><td><code class="inline">ceil(m)</code></td><td>Smallest integer ≥ m</td><td><code class="inline">ceil(14.27)</code> → 15</td></tr>
+          <tr><td><code class="inline">floor(m)</code></td><td>Largest integer ≤ m</td><td><code class="inline">floor(14.99)</code> → 14</td></tr>
+          <tr><td><code class="inline">ascii(c)</code></td><td>Numeric code for a character</td><td><code class="inline">ascii('t')</code> → 116</td></tr>
+          <tr><td><code class="inline">chr(n)</code></td><td>Character for a numeric code</td><td><code class="inline">chr(116)</code> → 't'</td></tr>
+          <tr><td><code class="inline">greatest(exprs)</code></td><td>Maximum among the given expressions</td><td><code class="inline">greatest(3,5,8,9)</code> → 9</td></tr>
+          <tr><td><code class="inline">least(exprs)</code></td><td>Minimum among the given expressions</td><td><code class="inline">least(3,2,1,9)</code> → 1</td></tr>
+        </table>
+        </div>
+      </section>
+
+      <!-- 13 -->
+      <section class="chapter" id="strfunc">
+        <p class="chnum">13</p>
+        <h2>String functions</h2>
+
+        <h3>Length</h3>
+        <pre><code><span class="kw">select</span> length('Alexander') <span class="kw">from</span> dual; <span class="out">-- 9</span></code></pre>
+
+        <h3>Reverse, Upper, Lower, Initcap</h3>
+        <p><code class="inline">reverse</code> reverses a string; <code class="inline">upper</code>/<code class="inline">lower</code> change case; <code class="inline">initcap</code> capitalizes the first letter and lowercases the rest.</p>
+
+        <h3>Concat / ||</h3>
+        <p><code class="inline">concat</code> joins exactly two strings. To join more than two, use the pipe operator <code class="inline">||</code>.</p>
+        <pre><code><span class="kw">select</span> concat('greg', 'martin') <span class="kw">from</span> dual; <span class="out">-- gregmartin</span>
+<span class="kw">select</span> 'EBS' || 'solutions' || 'for' || 'technical' <span class="kw">from</span> dual;</code></pre>
+
+        <h3>Substr(expression, m, n)</h3>
+        <p>Returns characters from a string starting at position m for n characters. If m is 0 it's treated as 1; positive m counts from the start; negative m counts backward from the end; omitting n returns everything from m to the end; n &lt; 1 returns null.</p>
+        <pre><code><span class="kw">select</span> substr('technologies', 2, 4) <span class="kw">from</span> dual; <span class="out">-- echn</span>
+<span class="kw">select</span> substr('technologies', 2) <span class="kw">from</span> dual; <span class="out">-- echnologies</span>
+<span class="kw">select</span> substr('technologies', -2) <span class="kw">from</span> dual; <span class="out">-- es</span></code></pre>
+
+        <h3>Instr</h3>
+        <p>Returns the numeric position of a substring, searching from the m'th character for the n'th occurrence. Negative m searches backward. Default m and n are both 1. Returns 0 if not found.</p>
+        <pre><code><span class="kw">select</span> instr('orporatororders', 'or') <span class="kw">from</span> dual; <span class="out">-- 2</span>
+<span class="kw">select</span> instr('orporatororders', 'or', 4) <span class="kw">from</span> dual; <span class="out">-- 5</span>
+<span class="kw">select</span> instr('orporatororders', 'or', -1) <span class="kw">from</span> dual; <span class="out">-- 17 (search backward)</span>
+<span class="kw">select</span> instr('orporatororders', 'or', 1, 2) <span class="kw">from</span> dual; <span class="out">-- 5 (2nd occurrence)</span></code></pre>
+
+        <h3>Trim / Ltrim / Rtrim</h3>
+        <p><code class="inline">trim</code> removes leading, trailing, or both instances of a character; if unspecified, both sides are trimmed.</p>
+        <pre><code>trim('0' <span class="kw">from</span> '002200'); <span class="out">-- 22</span>
+trim(leading '0' <span class="kw">from</span> '002200'); <span class="out">-- 2200</span>
+trim(trailing '0' <span class="kw">from</span> '002200'); <span class="out">-- 0022</span></code></pre>
+        <p><code class="inline">ltrim</code> / <code class="inline">rtrim</code> strip specified characters from the left / right of a string — every character in the given set is stripped, not just a literal match.</p>
+        <pre><code>ltrim('6372tech1234', '0123456789'); <span class="out">-- tech1234</span>
+rtrim('6372tech1234', '0123456789'); <span class="out">-- 6372tech</span></code></pre>
+
+        <h3>Lpad / Rpad</h3>
+        <p>Pad a string on the left or right up to a given length, using a specified character (space by default).</p>
+        <pre><code>lpad('tech', 8, '0'); <span class="out">-- 0000tech</span>
+rpad('tech', 8, '0'); <span class="out">-- tech0000</span></code></pre>
+
+        <h3>Translate</h3>
+        <p>Character-by-character replacement in a string.</p>
+        <pre><code>translate('1tech23', '123', '456'); <span class="out">-- 4tech56</span></code></pre>
+
+        <h3>Replace</h3>
+        <p>Replaces (or removes, if no replacement is given) a sequence of characters.</p>
+        <pre><code>replace('123tech324', '123', '456'); <span class="out">-- 456tech324</span>
+replace('123123tech', '123'); <span class="out">-- tech (removed)</span></code></pre>
+      </section>
+
+      <!-- 14 -->
+      <section class="chapter" id="datefunc">
+        <p class="chnum">14</p>
+        <h2>Date functions</h2>
+
+        <h3>Sysdate</h3>
+        <p>Returns the system date and time; you can add or subtract from it.</p>
+        <pre><code><span class="kw">select</span> sysdate <span class="kw">from</span> dual;
+<span class="kw">select</span> sysdate - 1 <span class="kw">from</span> dual;</code></pre>
+
+        <h3>Current_date</h3>
+        <p>Returns the current date in the time zone of the current SQL session (set via <code class="inline">alter session</code>).</p>
+
+        <h3>Add_months</h3>
+        <pre><code><span class="kw">select</span> add_months(sysdate, 3) <span class="kw">from</span> dual;
+<span class="kw">select</span> add_months(sysdate, -3) <span class="kw">from</span> dual;</code></pre>
+
+        <h3>Months_between</h3>
+        <pre><code><span class="kw">select</span> months_between(sysdate, '15-sep-19') <span class="kw">from</span> dual;</code></pre>
+
+        <h3>Next_day / Last_day</h3>
+        <pre><code><span class="kw">select</span> next_day(sysdate, 'monday') <span class="kw">from</span> dual;
+<span class="kw">select</span> last_day(sysdate) <span class="kw">from</span> dual;</code></pre>
+      </section>
+
+      <!-- 15 -->
+      <section class="chapter" id="convfunc">
+        <p class="chnum">15</p>
+        <h2>Conversion functions</h2>
+
+        <h3>To_char</h3>
+        <p>Converts a number or date into a string.</p>
+        <p><b>With numbers</b></p>
+        <pre><code>to_char(1210.73, '9999.9'); <span class="out">-- 1210.7</span>
+to_char(1210.73, '9999.99'); <span class="out">-- 1210.73</span>
+to_char(21, '000099'); <span class="out">-- 000021</span></code></pre>
+        <p><b>With dates</b></p>
+        <pre><code>to_char(sysdate, 'yyyy/mm/dd'); <span class="out">-- 2010/03/10</span>
+to_char(sysdate, 'month dd,yyyy'); <span class="out">-- July 09,2003</span>
+to_char(sysdate, 'fmmonth,yyyy'); <span class="out">-- july9,2003</span></code></pre>
+        <p class="note"><code class="inline">fm</code> is the format-mask parameter — it suppresses padding zeros and blanks.</p>
+        <div class="scroll-x">
+        <table>
+          <tr><th>Format</th><th>Meaning</th></tr>
+          <tr><td><code class="inline">yyyy</code></td><td>4-digit year</td></tr>
+          <tr><td><code class="inline">yyy / yy / y</code></td><td>last 3 / 2 / 1 digits of year</td></tr>
+          <tr><td><code class="inline">mon</code></td><td>abbreviated month (jan–dec)</td></tr>
+          <tr><td><code class="inline">month</code></td><td>full month name</td></tr>
+          <tr><td><code class="inline">day</code></td><td>name of day</td></tr>
+          <tr><td><code class="inline">dd / ddd</code></td><td>day of month (1–31) / day of year</td></tr>
+          <tr><td><code class="inline">hh / hh24</code></td><td>hour (1–12) / hour (0–23)</td></tr>
+          <tr><td><code class="inline">mi / ss</code></td><td>minutes / seconds (0–59)</td></tr>
+        </table>
+        </div>
+
+        <h3>To_date</h3>
+        <p>Converts another date format into Oracle's default format.</p>
+        <pre><code>to_date('2003/07/09', 'yyyy/mm/dd'); <span class="out">-- 09-jul-03</span>
+to_date('20020315', 'yyyymmdd'); <span class="out">-- 15-mar-02</span></code></pre>
+
+        <h3>To_number</h3>
+        <pre><code>to_number('$123.23', '$999.99'); <span class="out">-- 123.23</span></code></pre>
+      </section>
+
+      <!-- 16 -->
+      <section class="chapter" id="genfunc">
+        <p class="chnum">16</p>
+        <h2>General functions</h2>
+
+        <h3>User / Uid</h3>
+        <pre><code><span class="kw">select</span> user <span class="kw">from</span> dual;
+<span class="kw">select</span> uid <span class="kw">from</span> dual;</code></pre>
+
+        <h3>Nvl / Nvl2</h3>
+        <p><code class="inline">nvl(col, replacement)</code> substitutes a value for a null. <code class="inline">nvl2(col, value_if_not_null, value_if_null)</code> extends it to handle both cases.</p>
+        <pre><code><span class="kw">select</span> nvl(sal, 10000) <span class="kw">from</span> emp;
+<span class="kw">select</span> nvl2(sal, 10000, 20000) <span class="kw">from</span> emp;</code></pre>
+
+        <h3>Nullif(expr1, expr2)</h3>
+        <p>Returns null if the two expressions are equal, otherwise returns expr1.</p>
+        <pre><code>nullif(10,10); <span class="out">-- null</span>
+nullif(20,10); <span class="out">-- 20</span></code></pre>
+
+        <h3>Coalesce(expr1, expr2, ... exprn)</h3>
+        <p>Returns the first non-null expression in the list; null if every expression is null.</p>
+
+        <h3>Case</h3>
+        <p>Implements if-then-else logic. Two forms: simple and searched.</p>
+        <p><b>Simple case expression</b> — compares one expression against each option:</p>
+        <pre><code><span class="kw">select</span> cust_last_name,
+  <span class="kw">case</span> credit_limit
+    <span class="kw">when</span> 1000 <span class="kw">then</span> 'low'
+    <span class="kw">when</span> 5000 <span class="kw">then</span> 'high'
+    <span class="kw">else</span> 'medium'
+  <span class="kw">end</span>
+<span class="kw">from</span> emp;</code></pre>
+        <p><b>Searched case expression</b> — evaluates independent conditions per branch:</p>
+        <pre><code><span class="kw">select case</span>
+  <span class="kw">when</span> empno <span class="kw">in</span> (1234,1235) <span class="kw">and</span> sal &gt; 5000 <span class="kw">then</span> 'first grade'
+  <span class="kw">when</span> empno <span class="kw">in</span> (1236,1237) <span class="kw">and</span> sal &lt; 5000 <span class="kw">then</span> 'second grade'
+  <span class="kw">else</span> 'third grade'
+<span class="kw">end</span>;</code></pre>
+        <p class="note">Simple case checks equality against each option; searched case can combine multiple conditions with <code class="inline">and</code>. Maximum 255 options in a case expression; omitting <code class="inline">else</code> returns null.</p>
+
+        <h3>Decode</h3>
+        <p>If-then-else style substitution.</p>
+        <pre><code>decode(col_name, value, result, value, result, ..., default_value);
+<span class="out">-- example</span>
+<span class="kw">select</span> decode(s_area, 'bellandur','karnataka', 'rct','a.p', 'chennai','t.n', 'rest of india') <span class="kw">from</span> table_name;</code></pre>
+        <p><b>Decode vs case</b> — case supports all logical operators (=, &lt;&gt;, &gt;, &lt; ...); decode only supports equality checks. Case can use subqueries; decode cannot. Case expects data-type consistency across branches; decode does not.</p>
+      </section>
+
+      <!-- 17 -->
+      <section class="chapter" id="aggfunc">
+        <p class="chnum">17</p>
+        <h2>Aggregate functions</h2>
+        <p>Aggregate functions return a single result per group of rows, and can only appear in the select list and having clauses.</p>
+        <div class="scroll-x">
+        <table>
+          <tr><th>Function</th><th>Returns</th></tr>
+          <tr><td><code class="inline">avg(col)</code></td><td>Average value (ignores nulls)</td></tr>
+          <tr><td><code class="inline">sum(col)</code></td><td>Total value</td></tr>
+          <tr><td><code class="inline">max(col)</code> / <code class="inline">min(col)</code></td><td>Maximum / minimum value</td></tr>
+          <tr><td><code class="inline">stddev(col)</code></td><td>Standard deviation</td></tr>
+          <tr><td><code class="inline">variance(col)</code></td><td>Variance</td></tr>
+          <tr><td><code class="inline">count(*)</code> / <code class="inline">count(col)</code></td><td>Row count including nulls / distinct non-null count</td></tr>
+          <tr><td><code class="inline">distinct(col)</code></td><td>Eliminates duplicate rows</td></tr>
+          <tr><td><code class="inline">greatest(col1...coln)</code></td><td>Greatest value per row across the listed columns</td></tr>
+          <tr><td><code class="inline">least(col1...coln)</code></td><td>Least value per row across the listed columns</td></tr>
+        </table>
+        </div>
+        <p>For example, given per-subject marks for several students, <code class="inline">greatest(s1,s2,s3,s4,s5,s6)</code> returns each student's highest subject score, row by row — unlike <code class="inline">max</code>, which would collapse the whole column.</p>
+      </section>
+
+      <!-- 18 -->
+      <section class="chapter" id="clauses">
+        <p class="chnum">18</p>
+        <h2>Clauses</h2>
+
+        <h3>1. Where</h3>
+        <p>Limits records by condition. A where clause does not allow group functions.</p>
+        <pre><code><span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> sal &gt; 1000;
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> deptno = 20 <span class="kw">and</span> hiredate &gt; '01-JUN-81';</code></pre>
+
+        <h3>2. Group by</h3>
+        <p>Groups rows that share values in one or more columns — typically used together with an aggregate function in the select list.</p>
+        <pre><code><span class="kw">select</span> deptno, sum(sal) <span class="kw">from</span> emp <span class="kw">where</span> sal &gt; 500 <span class="kw">group by</span> deptno;</code></pre>
+        <p class="note">Every non-aggregated column in the select list must appear in the group by clause. A where clause, if present, precedes the group by clause.</p>
+
+        <h3>3. Having</h3>
+        <p>Filters the rows returned by a group by clause. Cannot be used without one.</p>
+        <pre><code><span class="kw">select</span> deptno, max(sal) <span class="kw">from</span> emp <span class="kw">where</span> sal &gt; 2000 <span class="kw">group by</span> deptno <span class="kw">having</span> max(sal) &gt; 3000;</code></pre>
+
+        <h3>4. Order by</h3>
+        <p>Sorts rows, ascending by default.</p>
+        <pre><code><span class="kw">select</span> ename, sal <span class="kw">from</span> emp <span class="kw">where</span> sal &gt; 2000 <span class="kw">order by</span> empno, sal;
+<span class="kw">select</span> empno, sal, mgr <span class="kw">from</span> emp <span class="kw">order by</span> sal <span class="kw">desc</span>;</code></pre>
+        <p>Instead of column names, you can order by their position in the select list: <code class="inline">order by 2</code> sorts by the 2nd selected column.</p>
+      </section>
+
+      <!-- 19 -->
+      <section class="chapter" id="analytical">
+        <p class="chnum">19</p>
+        <h2>Analytical functions</h2>
+        <p>Analytical functions help analyze data across groups of rows.</p>
+
+        <h3>Rollup</h3>
+        <p>Calculates multiple levels of subtotals across the specified dimensions, plus a grand total — an extension of group by.</p>
+        <pre><code><span class="kw">select</span> job, count(*) <span class="kw">from</span> emp <span class="kw">group by rollup</span>(job);
+<span class="kw">select</span> deptno, job, count(*) <span class="kw">from</span> emp <span class="kw">group by rollup</span>(job, deptno);</code></pre>
+
+        <h3>Cube</h3>
+        <p>Calculates subtotals for every possible combination of the grouped dimensions.</p>
+        <pre><code><span class="kw">select</span> deptno, job, count(*) <span class="kw">from</span> emp <span class="kw">group by cube</span>(job, deptno);</code></pre>
+
+        <h3>Rank</h3>
+        <p>Returns the rank of a value within a group of values. Ties get the same rank, and ranks after a tie are skipped (non-consecutive). Usable as an aggregate function or as an analytical function.</p>
+        <pre><code><span class="out">-- as aggregate function</span>
+<span class="kw">select rank</span>(1000) <span class="kw">within group</span> (<span class="kw">order by</span> sal) <span class="kw">from</span> emp;
+<span class="out">-- as analytical function</span>
+<span class="kw">select</span> ename, <span class="kw">rank() over</span> (<span class="kw">order by</span> sal <span class="kw">desc</span>) <span class="kw">from</span> emp;
+<span class="out">-- with partition by</span>
+<span class="kw">select</span> empno, ename, deptno, sal, <span class="kw">rank() over</span> (<span class="kw">partition by</span> deptno <span class="kw">order by</span> sal <span class="kw">desc</span>) <span class="kw">from</span> emp;</code></pre>
+
+        <h3>Dense_rank</h3>
+        <p>Assigns ranks the same way, but without skipping ranks after ties — consecutive ranking.</p>
+        <pre><code><span class="kw">select</span> ename, <span class="kw">dense_rank() over</span> (<span class="kw">order by</span> sal <span class="kw">desc</span>) <span class="kw">from</span> emp;</code></pre>
+      </section>
+
+      <!-- 20 -->
+      <section class="chapter" id="pseudocols">
+        <p class="chnum">20</p>
+        <h2>Pseudo columns</h2>
+        <p>A pseudo column behaves like a table column but isn't actually stored in the table — you can select from it, but never insert, update, or delete its values.</p>
+
+        <h3>Rownum</h3>
+        <p>Returns a number indicating the order Oracle selected each row, starting at 1. Can only be used meaningfully with <code class="inline">&lt;</code>, <code class="inline">&lt;=</code>, or <code class="inline">= 1</code>.</p>
+        <pre><code><span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> rownum &lt; 5;
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> rownum = 1;</code></pre>
+
+        <h3>Rowid</h3>
+        <p>The unique physical address of a row.</p>
+        <pre><code><span class="kw">select</span> rowid <span class="kw">from</span> emp;</code></pre>
+
+        <h3>Sequence pseudo columns — currval &amp; nextval</h3>
+        <p><code class="inline">currval</code> returns the current value of a sequence; <code class="inline">nextval</code> increments the sequence and returns the next value.</p>
+      </section>
+
+      <!-- 21 -->
+      <section class="chapter" id="aliases">
+        <p class="chnum">21</p>
+        <h2>Aliases</h2>
+        <p>An alias is a temporary name for a table or column.</p>
+
+        <h3>Column aliases</h3>
+        <p><code class="inline">as</code> defines an alternate name for a column heading (a space also works):</p>
+        <pre><code><span class="kw">select</span> sal <span class="kw">as</span> salary <span class="kw">from</span> emp;
+<span class="kw">select</span> ename, sal, dense_rank() <span class="kw">over</span> (<span class="kw">order by</span> sal <span class="kw">desc</span>) rn <span class="kw">from</span> emp;</code></pre>
+
+        <h3>Table aliases</h3>
+        <p>Used when the same table needs to appear more than once in a query — common with joins:</p>
+        <pre><code><span class="kw">select</span> a.ename, a.deptno, b.dname <span class="kw">from</span> emp a, dept b <span class="kw">where</span> a.deptno = b.deptno;</code></pre>
+      </section>
+
+      <!-- 22 -->
+      <section class="chapter" id="constraints">
+        <p class="chnum">22</p>
+        <h2>Constraints</h2>
+        <p>Constraints are rules enforced on table columns, limiting what data can enter — ensuring accuracy and reliability. They can be defined at column level or table level.</p>
+
+        <h3>1. Not null</h3>
+        <p>Prevents null values (duplicates are still allowed).</p>
+        <pre><code><span class="kw">create table</span> student (s_name varchar2(10) <span class="kw">not null</span>, stu_id number(5), grade varchar2(5));
+<span class="out">-- add to an existing table</span>
+<span class="kw">alter table</span> student <span class="kw">modify</span> stu_id number(5) <span class="kw">not null</span>;</code></pre>
+        <p class="note">A not-null constraint cannot be created at table level.</p>
+
+        <h3>2. Unique</h3>
+        <p>Prevents duplicate values, but allows any number of nulls (since two nulls are never considered equal).</p>
+        <pre><code><span class="out">-- column level</span>
+<span class="kw">create table</span> emp (ename varchar2(10), deptno number(15) <span class="kw">constraint</span> con_un1 <span class="kw">unique</span>, sal number(5) <span class="kw">constraint</span> con_un2 <span class="kw">unique</span>);
+<span class="out">-- table level</span>
+<span class="kw">create table</span> emp (ename varchar2(10), deptno number(5), sal number(5), <span class="kw">unique</span> (deptno, sal));
+<span class="out">-- add to an existing table</span>
+<span class="kw">alter table</span> student <span class="kw">add constraint</span> cons_uu1 <span class="kw">unique</span> (ename);</code></pre>
+
+        <h3>3. Check</h3>
+        <p>Restricts the range of values that can be inserted into a column.</p>
+        <pre><code><span class="kw">create table</span> emp (ename varchar2(10), deptno number(5), sal number(6) <span class="kw">check</span>(sal <span class="kw">between</span> 1200 <span class="kw">and</span> 2200));</code></pre>
+        <p class="note">A check constraint still allows nulls — null is treated as a unique value. Pair it with <code class="inline">not null</code> if nulls should also be rejected.</p>
+
+        <h3>4. Default</h3>
+        <p>Supplies a default value when insert doesn't specify one (only applies with the direct insert method).</p>
+        <pre><code><span class="kw">create table</span> emp (stu_id number(9), sal number(9) <span class="kw">default</span>(90));
+<span class="kw">insert into</span> emp (stu_id) <span class="kw">values</span> (1234); <span class="out">-- sal becomes 90</span></code></pre>
+
+        <h3>5. Primary key</h3>
+        <p>Combines <code class="inline">unique</code> and <code class="inline">not null</code>. A table can have only one primary key, though a table-level primary key can span multiple columns.</p>
+        <pre><code><span class="out">-- column level</span>
+<span class="kw">create table</span> emp (ename varchar2(10), sal number(10), empid varchar2(10) <span class="kw">constraint</span> con_pk <span class="kw">primary key</span>, deptno number(10));
+<span class="out">-- table level (composite key)</span>
+<span class="kw">create table</span> emp (ename varchar2(10), sal number(10), empid varchar2(10), deptno number(10), <span class="kw">constraint</span> con_pk1 <span class="kw">primary key</span> (ename, empid));</code></pre>
+        <p class="note">Defining a primary key or unique constraint automatically creates a unique index on those columns.</p>
+
+        <h3>6. Foreign key (referential integrity)</h3>
+        <p>Prevents actions that would break links between two tables — it points to the primary key (or a unique-constrained column) in another table. The referenced table is the parent table; the table holding the foreign key is the child table. The parent's referenced column must carry a primary key or unique constraint.</p>
+        <pre><code><span class="kw">create table</span> student (ename varchar2(10), deptno number(10) <span class="kw">references</span> emp(deptno));
+<span class="out">-- or</span>
+<span class="kw">create table</span> student (ename varchar2(10), deptno number(10), <span class="kw">foreign key</span>(deptno) <span class="kw">references</span> emp(deptno));</code></pre>
+        <p>Two delete-behavior options:</p>
+        <ul>
+          <li><b>On delete cascade</b> — deleting the parent row also deletes matching child rows.</li>
+          <li><b>On delete set null</b> — deleting the parent row sets the matching child column to null.</li>
+        </ul>
+        <pre><code><span class="kw">create table</span> student (ename varchar2(10) <span class="kw">not null</span>, stuno number(10), sal number(10) <span class="kw">not null</span>,
+  <span class="kw">constraint</span> con_fk <span class="kw">foreign key</span>(deptno) <span class="kw">references</span> emp(deptno) <span class="kw">on delete cascade</span>);</code></pre>
+
+        <h3>Managing constraints</h3>
+        <pre><code><span class="kw">alter table</span> table_name <span class="kw">drop constraint</span> constraint_name;
+<span class="kw">alter table</span> table_name <span class="kw">disable constraint</span> constraint_name;
+<span class="kw">alter table</span> table_name <span class="kw">enable constraint</span> constraint_name;</code></pre>
+      </section>
+
+      <!-- 23 -->
+      <section class="chapter" id="subqueries">
+        <p class="chnum">23</p>
+        <h2>Sub queries</h2>
+        <p>A query within a query. Sub queries can sit in a where clause (a "nested sub query"), a from clause (an "inline view"), or a select clause. Oracle allows up to 255 nested sub query levels in a where clause — there's no limit on inline views. They're most useful when selecting rows based on a condition drawn from the table's own data.</p>
+
+        <h3>Single row sub query</h3>
+        <p>Returns exactly one row; usable with <code class="inline">=, &lt;, &lt;=, &gt;, &gt;=, &lt;&gt;, !=</code>.</p>
+        <pre><code><span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> sal = (<span class="kw">select</span> max(sal) <span class="kw">from</span> emp);</code></pre>
+
+        <h3>Multiple row sub query</h3>
+        <p>Returns one or more rows — needs <code class="inline">in</code>, <code class="inline">not in</code>, <code class="inline">any</code> or <code class="inline">all</code> in the outer query.</p>
+        <pre><code><span class="kw">select</span> ename, dept_id <span class="kw">from</span> emp <span class="kw">where</span> dept_id <span class="kw">in</span> (<span class="kw">select</span> dept_id <span class="kw">from</span> dept <span class="kw">where</span> location_id = 100);</code></pre>
+
+        <h3>Correlated sub query</h3>
+        <p>References a value from the outer query, and may be evaluated once per outer row — so it tends to be slower.</p>
+        <pre><code><span class="out">-- employees earning above their department's average</span>
+<span class="kw">select</span> empno, ename, deptno, sal <span class="kw">from</span> emp a
+<span class="kw">where</span> sal &gt; (<span class="kw">select</span> avg(sal) <span class="kw">from</span> emp b <span class="kw">where</span> b.deptno = a.deptno);</code></pre>
+      </section>
+
+      <!-- 24 -->
+      <section class="chapter" id="importantqueries">
+        <p class="chnum">24</p>
+        <h2>Important queries</h2>
+
+        <h3>Duplicate records — display / delete</h3>
+        <pre><code><span class="out">-- display duplicates</span>
+<span class="kw">select</span> * <span class="kw">from</span> table_name <span class="kw">where</span> rowid <span class="kw">not in</span>
+  (<span class="kw">select</span> max(rowid) <span class="kw">from</span> table_name <span class="kw">group by</span> col1, col2, col3, col4);
+<span class="out">-- delete duplicates</span>
+<span class="kw">delete from</span> emp <span class="kw">where</span> rowid <span class="kw">not in</span>
+  (<span class="kw">select</span> max(rowid) <span class="kw">from</span> table_name <span class="kw">group by</span> col1, col2, col3, col4);
+<span class="out">-- rows with count, showing how many times duplicated</span>
+<span class="kw">select</span> empno, ename, sal, deptno, count(*) <span class="kw">from</span> emp1
+<span class="kw">group by</span> empno, ename, sal, deptno <span class="kw">having</span> count(*) &gt; 1;</code></pre>
+
+        <h3>Nth highest salary</h3>
+        <pre><code><span class="out">-- first highest</span>
+<span class="kw">select</span> max(sal) <span class="kw">from</span> table_name;
+<span class="out">-- second highest</span>
+<span class="kw">select</span> max(sal) <span class="kw">from</span> table_name <span class="kw">where</span> sal <span class="kw">not in</span> (<span class="kw">select</span> max(sal) <span class="kw">from</span> table_name);
+<span class="out">-- nth highest, general form</span>
+<span class="kw">select</span> * <span class="kw">from</span> (<span class="kw">select</span> table_name.*, dense_rank() <span class="kw">over</span> (<span class="kw">order by</span> sal <span class="kw">desc</span>) rn <span class="kw">from</span> table_name) <span class="kw">where</span> rn = n;
+<span class="out">-- top 5</span>
+<span class="kw">select</span> * <span class="kw">from</span> (<span class="kw">select</span> table_name.*, dense_rank() <span class="kw">over</span> (<span class="kw">order by</span> sal <span class="kw">desc</span>) rn <span class="kw">from</span> table_name) <span class="kw">where</span> rn &lt;= 5;</code></pre>
+
+        <h3>Even / odd rows</h3>
+        <pre><code><span class="out">-- even</span>
+<span class="kw">select</span> * <span class="kw">from</span> (<span class="kw">select</span> rownum rn, emp.* <span class="kw">from</span> emp) <span class="kw">where</span> mod(rn,2) = 0;
+<span class="out">-- odd</span>
+<span class="kw">select</span> * <span class="kw">from</span> (<span class="kw">select</span> rownum rn, emp.* <span class="kw">from</span> emp) <span class="kw">where</span> mod(rn,2) &lt;&gt; 0;</code></pre>
+
+        <h3>Other common patterns</h3>
+        <pre><code><span class="out">-- above average salary</span>
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> sal &gt;= (<span class="kw">select</span> avg(sal) <span class="kw">from</span> emp);
+<span class="out">-- highest-paid employee per department</span>
+<span class="kw">select</span> * <span class="kw">from</span> (<span class="kw">select</span> emp.*, dense_rank() <span class="kw">over</span> (<span class="kw">partition by</span> deptno <span class="kw">order by</span> sal <span class="kw">desc</span>) rn <span class="kw">from</span> emp) <span class="kw">where</span> rn = 1;
+<span class="out">-- first / last record</span>
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> rowid <span class="kw">in</span> (<span class="kw">select</span> min(rowid) <span class="kw">from</span> emp);
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> rowid <span class="kw">in</span> (<span class="kw">select</span> max(rowid) <span class="kw">from</span> emp);
+<span class="out">-- rows 6 through 10</span>
+<span class="kw">select</span> * <span class="kw">from</span> emp <span class="kw">where</span> rownum &lt;= 10
+<span class="kw">minus select</span> * <span class="kw">from</span> emp <span class="kw">where</span> rownum &lt;= 5;
+<span class="out">-- count occurrences of a letter in a string</span>
+<span class="kw">select</span> length('good morning') - length(replace('good morning','o')) <span class="kw">from</span> dual;</code></pre>
+
+        <h3>Backups &amp; copying tables</h3>
+        <pre><code><span class="out">-- copy all columns and data</span>
+<span class="kw">create table</span> new_table <span class="kw">as select</span> * <span class="kw">from</span> old_table;
+<span class="out">-- copy specific columns</span>
+<span class="kw">create table</span> new_table <span class="kw">as select</span> column1, column2 <span class="kw">from</span> old_table;
+<span class="out">-- copy structure only, no data</span>
+<span class="kw">create table</span> new_table <span class="kw">as select</span> * <span class="kw">from</span> old_table <span class="kw">where</span> 1=2;
+<span class="out">-- insert via select</span>
+<span class="kw">insert into</span> table2 <span class="kw">select</span> * <span class="kw">from</span> table1 <span class="kw">where</span> condition;</code></pre>
+        <p class="note">Source and target column data types must match when inserting via select.</p>
+      </section>
+
+      <!-- 25 -->
+      <section class="chapter" id="joins">
+        <p class="chnum">25</p>
+        <h2>Joins</h2>
+        <p>Joins fetch data from more than one table or view. The columns being compared must share a similar data type. In the select list, columns should be uniquely identified — <code class="inline">table.column</code> or <code class="inline">alias.column</code>. For three or more tables, Oracle joins two tables first, then joins the result to the next table.</p>
+        <p>Oracle's join types: self join, inner join, outer join (left, right, full), and Cartesian / cross join.</p>
+
+        <h3>1. Self join</h3>
+        <p>Joins a table to itself — one row is matched against another row in the same table, using aliases to treat it as two tables.</p>
+        <pre><code><span class="out">-- finding an employee's manager name</span>
+<span class="kw">select</span> a.ename <span class="kw">as</span> "employee_name", b.ename <span class="kw">as</span> "manager_name"
+<span class="kw">from</span> emp a, emp b <span class="kw">where</span> a.mgr = b.empno;
+<span class="out">-- ANSI join syntax</span>
+<span class="kw">select</span> a.ename <span class="kw">as</span> "employee_name", b.ename <span class="kw">as</span> "manager_name"
+<span class="kw">from</span> emp a <span class="kw">inner join</span> emp b <span class="kw">on</span> a.mgr = b.empno;</code></pre>
+
+        <h3>2. Inner join</h3>
+        <p>Returns only rows that satisfy the join condition.</p>
+        <pre><code><span class="kw">select</span> a.ename, a.deptno, b.dname <span class="kw">from</span> emp a <span class="kw">inner join</span> dept b <span class="kw">on</span> a.deptno = b.deptno;
+<span class="out">-- equivalent old syntax</span>
+<span class="kw">select</span> a.ename, a.deptno, b.dname <span class="kw">from</span> emp a, dept b <span class="kw">where</span> a.deptno = b.deptno;</code></pre>
+
+        <h3>3. Outer join</h3>
+        <p>Returns matched rows plus all rows from one side, with nulls filling in unmatched columns from the other side.</p>
+
+        <h4>Left outer join</h4>
+        <p>All rows from the left table; matched data from the right table; unmatched right-side data becomes null.</p>
+        <pre><code><span class="kw">select</span> a.empno, a.ename, a.sal, b.deptno, b.dname, b.loc
+<span class="kw">from</span> emp a <span class="kw">left outer join</span> dept b <span class="kw">on</span> a.deptno = b.deptno;
+<span class="out">-- old syntax</span>
+... <span class="kw">from</span> emp a, dept b <span class="kw">where</span> a.deptno = b.deptno (+);</code></pre>
+
+        <h4>Right outer join</h4>
+        <p>All rows from the right table; matched data from the left; unmatched left-side data becomes null.</p>
+        <pre><code><span class="kw">select</span> a.empno, a.ename, a.sal, b.deptno, b.dname, b.loc
+<span class="kw">from</span> emp a <span class="kw">right outer join</span> dept b <span class="kw">on</span> a.deptno = b.deptno;</code></pre>
+
+        <h4>Full outer join</h4>
+        <p>All rows from both tables; unmatched rows on either side become null. If table A has 6 rows, table B has 5, and 3 rows are common, the full outer join returns 6 + 5 − 3 = 8 rows.</p>
+        <pre><code><span class="kw">select</span> a.empno, a.ename, a.sal, b.deptno, b.dname, b.loc
+<span class="kw">from</span> emp a <span class="kw">full outer join</span> dept b <span class="kw">on</span> a.deptno = b.deptno;</code></pre>
+
+        <h3>4. Cartesian / cross join</h3>
+        <p>A join with no join condition — every row of one table is paired with every row of the other. Table A with 3 rows and table B with 5 rows produces 15 rows.</p>
+        <pre><code><span class="kw">select</span> a.*, b.* <span class="kw">from</span> emp a, dept b;</code></pre>
+      </section>
+
+      <!-- 26 -->
+      <section class="chapter" id="views">
+        <p class="chnum">26</p>
+        <h2>Views</h2>
+        <p>A view is a logical representation of a table, based on one or more tables or views. It holds no data of its own — every select or DML operation hits the underlying base table. The tables a view derives from are its base tables (which can themselves be normal tables or other views).</p>
+
+        <h3>Advantages</h3>
+        <ul>
+          <li>Restricts access — users can query a view for information without touching the base table.</li>
+          <li>Provides a layer of security over the table.</li>
+          <li>Simplifies complicated underlying queries for the end user.</li>
+          <li>Lets different groups of users see different shapes of the same data.</li>
+        </ul>
+
+        <h3>Types</h3>
+        <p><b>Simple view</b> — built on one table, no group functions. Supports DML directly.</p>
+        <p><b>Complex view</b> — derives from multiple tables or includes group functions. DML isn't directly supported, but can be enabled through <code class="inline">instead of</code> triggers.</p>
+        <p><b>Materialized view</b> — used to speed up select queries, especially with aggregation or joins across two tables. Unlike ordinary views, it occupies storage and must be refreshed after the base table changes.</p>
+        <pre><code>DBMS_MVIEW.REFRESH(view_name); <span class="out">-- refresh a single materialized view</span>
+DBMS_MVIEW.REFRESH_ALL_MVIEWS; <span class="out">-- refresh all</span></code></pre>
+
+        <h3>Creating a view</h3>
+        <pre><code><span class="kw">create or replace</span> [force|noforce] <span class="kw">view</span> view_name <span class="kw">as select</span> ... <span class="kw">from</span> table_name
+[<span class="kw">with check option</span> | <span class="kw">with read only</span>];</code></pre>
+        <ul>
+          <li><b>force</b> — creates the view even if the base table doesn't yet exist; it becomes usable once the table is created.</li>
+          <li><b>noforce</b> (default) — refuses to create the view if the base table is missing.</li>
+          <li><b>with check option</b> — rows retrieved by the view's where clause are the only ones that can be selected, inserted, updated, or deleted.</li>
+          <li><b>with read only</b> — the view is read-only; no DML is allowed.</li>
+        </ul>
+
+        <h3>When a view is updatable</h3>
+        <p>A view can be updated when it includes the base table's primary key, has no aggregate functions, no <code class="inline">distinct</code>, no <code class="inline">group by</code>/<code class="inline">having</code>, and no sub-queries in its definition. A view cannot be updated if it's built on nested or complex queries, lacks a key-preserved table, or contains pseudo columns or expressions.</p>
+
+        <h3>View vs materialized view</h3>
+        <div class="scroll-x">
+        <table>
+          <tr><th>View</th><th>Materialized view</th></tr>
+          <tr><td>No storage space required</td><td>Occupies disk space</td></tr>
+          <tr><td>Updates live, every use</td><td>Must be refreshed manually</td></tr>
+          <tr><td>Slower</td><td>Faster</td></tr>
+          <tr><td>Not stored in the database</td><td>Physically stored on disk</td></tr>
+          <tr><td>Logical representation of a table</td><td>Physical copy of the base table</td></tr>
+        </table>
+        </div>
+      </section>
+
+      <!-- 27 -->
+      <section class="chapter" id="indexes">
+        <p class="chnum">27</p>
+        <h2>Indexes</h2>
+        <p>An index is an indicator that gives quick access to rows in a table, with an entry created for each value in the indexed columns. Oracle automatically creates a unique index for primary key and unique key constraints.</p>
+
+        <h3>Advantages / disadvantages</h3>
+        <p><b>Advantages:</b> faster row retrieval, faster statement execution.</p>
+        <p><b>Disadvantages:</b> extra disk space; slower insert/update/delete (the index has to be updated too); too many indexes can actually slow the database down.</p>
+
+        <h3>Creating and dropping</h3>
+        <pre><code><span class="kw">create index</span> index_name <span class="kw">on</span> table_name(columns); <span class="out">-- multiple columns = composite index</span>
+<span class="kw">alter index</span> index_name <span class="kw">rebuild</span> compute statistics;
+<span class="kw">drop index</span> index_name;</code></pre>
+        <p class="note">If no index type is specified, Oracle creates a B-tree index by default. The <code class="inline">all_indexes</code> table holds metadata on every index.</p>
+
+        <h3>Types</h3>
+        <p><b>B-tree index</b> — Oracle's default; branches lead down to leaf nodes that hold the data.</p>
+        <p><b>Bitmap index</b> — stores a bitmap per index key, each pointing to multiple rows. Best for low-cardinality columns.</p>
+        <p><b>Unique / non-unique</b> — unique indexes guarantee no two rows share a value in the key column(s); automatically created for unique/primary key constraints.</p>
+        <p><b>Clustered / non-clustered</b> — a cluster groups tables sharing the same data block, useful when two tables are frequently joined (e.g. emp and dept joined via deptno).</p>
+        <div class="scroll-x">
+        <table>
+          <tr><th>Clustered index</th><th>Non-clustered index</th></tr>
+          <tr><td>One per table</td><td>N per table</td></tr>
+          <tr><td>Determines physical row order on disk</td><td>Doesn't affect row order</td></tr>
+          <tr><td>Faster — matches disk order</td><td>Slower — order doesn't match disk</td></tr>
+          <tr><td>No pointer to the actual row</td><td>Stores a value plus a pointer to the row</td></tr>
+        </table>
+        </div>
+      </section>
+
+      <!-- 28 -->
+      <section class="chapter" id="sequences">
+        <p class="chnum">28</p>
+        <h2>Sequences</h2>
+        <p>A sequence is an object that generates an auto-incrementing number, useful for guaranteeing a unique value per row.</p>
+        <pre><code><span class="kw">create sequence</span> sequence_name
+<span class="kw">start with</span> value
+<span class="kw">increment by</span> increment_value
+<span class="kw">minvalue</span> minimum_value
+<span class="kw">maxvalue</span> maximum_value
+[<span class="kw">cycle</span>|<span class="kw">nocycle</span>]
+[<span class="kw">cache</span>|<span class="kw">nocache</span>];</code></pre>
+        <p>Defaults: start with 1, increment by 1, minvalue 1, cache 20, nocycle. Maxvalue defaults to an effectively infinite ceiling.</p>
+        <pre><code><span class="kw">create sequence</span> seq1 <span class="kw">start with</span> 10 <span class="kw">minvalue</span> 10 <span class="kw">maxvalue</span> 200 <span class="kw">increment by</span> 5 <span class="kw">cycle</span>;
+<span class="out">-- decrementing sequence</span>
+<span class="kw">create sequence</span> seq1 <span class="kw">start with</span> 200 <span class="kw">minvalue</span> 0 <span class="kw">maxvalue</span> 200 <span class="kw">increment by</span> -10 <span class="kw">cycle</span>;
+<span class="out">-- alter</span>
+<span class="kw">alter sequence</span> seq1 <span class="kw">increment by</span> 20 <span class="kw">maxvalue</span> 200;
+<span class="out">-- drop</span>
+<span class="kw">drop sequence</span> sequence_name;</code></pre>
+        <p class="note">With <code class="inline">cycle</code>, the number of values the sequence can generate must be at least the cache size, or Oracle raises ORA-04013. Pair <code class="inline">cycle</code> with <code class="inline">nocache</code> to sidestep that restriction.</p>
+      </section>
+
+      <!-- 29 -->
+      <section class="chapter" id="synonyms">
+        <p class="chnum">29</p>
+        <h2>Synonyms</h2>
+        <p>A synonym is an alternate name for an object — a table, view, sequence, procedure, and so on — useful for giving a short name to something long or complicated.</p>
+        <pre><code><span class="kw">create or replace</span> [<span class="kw">public</span>] <span class="kw">synonym</span> synonym_name <span class="kw">for</span> object_name;
+<span class="out">-- example</span>
+<span class="kw">create synonym</span> syn_emp <span class="kw">for</span> emp;</code></pre>
+        <p>A <b>public</b> synonym is accessible to every user in the database and owned by the group <code class="inline">PUBLIC</code>. A <b>private</b> synonym lives in one schema and is available only to its owner.</p>
+      </section>
+
+      <!-- 30 -->
+      <section class="chapter" id="normalization">
+        <p class="chnum">30</p>
+        <h2>Normalization</h2>
+        <p>Normalization is the technique of organizing data in a database — creating tables and relationships according to rules designed to protect the data and keep the database flexible. It works by eliminating redundancy and inconsistent dependency. There are four normal forms in common use: 1NF, 2NF, 3NF, and BCNF.</p>
+
+        <h3>First normal form (1NF)</h3>
+        <p>Every table cell must contain a single value, and every record must be unique.</p>
+        <div class="scroll-x">
+        <table>
+          <caption>Before 1NF</caption>
+          <tr><th>Name</th><th>Age</th><th>Subject</th></tr>
+          <tr><td>Martin</td><td>15</td><td>biology, maths</td></tr>
+          <tr><td>Alex</td><td>14</td><td>maths</td></tr>
+        </table>
+        <table>
+          <caption>After 1NF — one value per cell, each row unique</caption>
+          <tr><th>Name</th><th>Age</th><th>Subject</th></tr>
+          <tr><td>Martin</td><td>15</td><td>biology</td></tr>
+          <tr><td>Martin</td><td>15</td><td>maths</td></tr>
+          <tr><td>Alex</td><td>14</td><td>maths</td></tr>
+        </table>
+        </div>
+
+        <h3>Second normal form (2NF)</h3>
+        <p>No column may have a partial dependency on the primary key — every non-key column must depend on the <i>entire</i> composite key, not just part of it. In the 1NF example, age depends only on name, not on the composite (name, subject) key — a 2NF violation. Splitting subject into its own table, linked back by name, resolves it.</p>
+        <div class="scroll-x">
+        <table>
+          <caption>Student</caption>
+          <tr><th>Name</th><th>Age</th></tr>
+          <tr><td>Martin</td><td>15</td></tr>
+          <tr><td>Alex</td><td>14</td></tr>
+        </table>
+        <table>
+          <caption>Subject</caption>
+          <tr><th>Name</th><th>Subject</th></tr>
+          <tr><td>Martin</td><td>biology</td></tr>
+          <tr><td>Martin</td><td>maths</td></tr>
+          <tr><td>Alex</td><td>maths</td></tr>
+        </table>
+        </div>
+
+        <h3>Third normal form (3NF)</h3>
+        <p>Every non-key column must depend directly on the primary key — not on another non-key column. That kind of indirect dependency is a transitive dependency, and it must be removed (in addition to satisfying 2NF).</p>
+        <p>Example: in a student-detail table keyed on <code class="inline">student_id</code>, if <code class="inline">street</code>, <code class="inline">city</code> and <code class="inline">state</code> all really depend on <code class="inline">zip</code> rather than directly on <code class="inline">student_id</code>, that's a transitive dependency. The fix is to move zip and its dependents into their own table, keyed on zip — reducing duplication and improving data integrity.</p>
+
+        <h3>Boyce-Codd normal form (BCNF)</h3>
+        <p>A stronger version of 3NF, sometimes called 3.5NF. Even a table already in 3NF can still show anomalies if it has more than one candidate key — BCNF addresses the cases 3NF doesn't catch.</p>
+      </section>
+
+      <p><a class="backtotop" href="#top" onclick="document.getElementById('sidebar').scrollIntoView();return false;">&uarr; Back to contents</a></p>
+    </div>
+
+    <footer>Oracle &amp; SQL course reference — Database, SQL command families, functions, joins, views, indexing and normalization.</footer>
+  </div>
+</div>
+
+<script>
+  function filterNav(q){
+    q = q.trim().toLowerCase();
+    document.querySelectorAll('#navBody .nav-group').forEach(function(group){
+      var anyVisible = false;
+      group.querySelectorAll('li').forEach(function(li){
+        var text = li.textContent.toLowerCase();
+        var show = q === '' || text.indexOf(q) !== -1;
+        li.style.display = show ? '' : 'none';
+        if(show) anyVisible = true;
+      });
+      group.style.display = anyVisible ? '' : 'none';
+    });
+  }
+
+  // Highlight active section in sidebar while scrolling
+  var links = Array.from(document.querySelectorAll('#navBody a[href^="#"]'));
+  var sections = links.map(function(l){ return document.querySelector(l.getAttribute('href')); });
+  function onScroll(){
+    var pos = window.scrollY + 120;
+    var current = null;
+    sections.forEach(function(sec, i){
+      if(sec && sec.offsetTop <= pos) current = i;
+    });
+    links.forEach(function(l, i){
+      l.classList.toggle('active', i === current);
+    });
+  }
+  document.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  // Close mobile nav after selecting a topic
+  document.querySelectorAll('#navBody a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(){
+      if(window.innerWidth <= 880){
+        document.getElementById('navBody').classList.remove('open');
+      }
+    });
+  });
+</script>
+</body>
+</html>
