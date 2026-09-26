@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autosys — Reference Notes</title>
+<style>
+  :root{
+    --bg: #f8f7f4;
+    --panel: #ffffff;
+    --ink: #1c1d1b;
+    --ink-soft: #56564f;
+    --line: #ddd9cf;
+    --accent: #2d4f3a;
+    --accent-soft: #e7ede6;
+    --code-bg: #f1efe8;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.55;
+  }
+  .layout{
+    display:grid;
+    grid-template-columns: 260px minmax(0,1fr);
+    max-width:1180px;
+    margin:0 auto;
+  }
+  nav.toc{
+    padding: 48px 24px 48px 32px;
+    position:sticky;
+    top:0;
+    align-self:start;
+    height:100vh;
+    overflow-y:auto;
+    border-right:1px solid var(--line);
+  }
+  nav.toc h2{
+    font-family:var(--serif);
+    font-size:1.05rem;
+    margin:0 0 18px;
+    color:var(--accent);
+  }
+  nav.toc ol{
+    list-style:none;
+    margin:0;
+    padding:0;
+    counter-reset:sec;
+  }
+  nav.toc li{
+    counter-increment:sec;
+    margin-bottom:10px;
+  }
+  nav.toc a{
+    display:flex;
+    gap:10px;
+    text-decoration:none;
+    color:var(--ink-soft);
+    font-size:0.9rem;
+  }
+  nav.toc a::before{
+    content: counter(sec);
+    flex:0 0 auto;
+    width:20px;
+    height:20px;
+    border:1px solid var(--line);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.7rem;
+    color:var(--accent);
+  }
+  nav.toc a:hover{color:var(--accent);}
+
+  main{
+    padding: 56px 56px 100px;
+    min-width:0;
+  }
+  header.hero{
+    margin-bottom:56px;
+    padding-bottom:32px;
+    border-bottom:1px solid var(--line);
+  }
+  header.hero .kicker{
+    font-family:var(--mono);
+    font-size:0.78rem;
+    color:var(--accent);
+    letter-spacing:0.02em;
+  }
+  header.hero h1{
+    font-family:var(--serif);
+    font-size:2.6rem;
+    margin:10px 0 14px;
+    line-height:1.1;
+  }
+  header.hero p{
+    max-width:60ch;
+    color:var(--ink-soft);
+    font-size:1.05rem;
+    margin:0;
+  }
+
+  section{
+    margin-bottom:60px;
+    scroll-margin-top:24px;
+  }
+  section h2{
+    font-family:var(--serif);
+    font-size:1.6rem;
+    margin:0 0 18px;
+    padding-bottom:10px;
+    border-bottom:2px solid var(--accent-soft);
+  }
+  section h3{
+    font-size:1.05rem;
+    margin:28px 0 10px;
+    color:var(--ink);
+  }
+  p{max-width:75ch;}
+  section p{color:var(--ink);}
+
+  .diagram{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:28px;
+    margin:20px 0;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .diagram .node{
+    flex:1 1 140px;
+    text-align:center;
+    padding:16px 10px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    background:var(--code-bg);
+  }
+  .diagram .node b{display:block;font-size:0.95rem;margin-bottom:4px;}
+  .diagram .node span{font-size:0.8rem;color:var(--ink-soft);}
+  .diagram .arrow{
+    font-family:var(--mono);
+    color:var(--accent);
+    font-size:1.3rem;
+  }
+
+  .card-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:16px;
+    margin-top:18px;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:18px 20px;
+  }
+  .card h4{
+    margin:0 0 8px;
+    font-size:0.95rem;
+  }
+  .card p{margin:0;font-size:0.9rem;color:var(--ink-soft);}
+
+  pre{
+    background:var(--code-bg);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:18px 20px;
+    overflow-x:auto;
+    font-family:var(--mono);
+    font-size:0.85rem;
+    line-height:1.6;
+    margin:16px 0;
+  }
+  code{
+    font-family:var(--mono);
+    background:var(--code-bg);
+    padding:1px 5px;
+    border-radius:3px;
+    font-size:0.88em;
+  }
+  pre code{background:none;padding:0;}
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:18px 0;
+    font-size:0.92rem;
+  }
+  th,td{
+    text-align:left;
+    padding:10px 14px;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  th{
+    font-family:var(--mono);
+    font-size:0.78rem;
+    color:var(--accent);
+    border-bottom:2px solid var(--accent-soft);
+  }
+  tr:last-child td{border-bottom:none;}
+
+  .compare{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    margin-top:18px;
+  }
+  .compare .col{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:20px 22px;
+  }
+  .compare .col h4{
+    margin:0 0 10px;
+    font-family:var(--mono);
+    font-size:0.85rem;
+    color:var(--accent);
+  }
+  .compare .col ul{margin:0;padding-left:18px;}
+  .compare .col li{margin-bottom:8px;font-size:0.92rem;}
+
+  footer{
+    padding:32px 56px;
+    color:var(--ink-soft);
+    font-size:0.82rem;
+    border-top:1px solid var(--line);
+  }
+
+  @media (max-width:840px){
+    .layout{grid-template-columns:1fr;}
+    nav.toc{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line);}
+    main{padding:36px 24px 80px;}
+    .compare{grid-template-columns:1fr;}
+    header.hero h1{font-size:2rem;}
+  }
+
+  @media print{
+    nav.toc{display:none;}
+    .layout{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <nav class="toc">
+    <h2>Autosys</h2>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#crontab">vs. Crontab</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#job-types">Job Types</a></li>
+      <li><a href="#jil">JIL File</a></li>
+      <li><a href="#states">Job States</a></li>
+      <li><a href="#hold-ice">Hold vs. Ice</a></li>
+      <li><a href="#events">Events & Options</a></li>
+      <li><a href="#cli">CLI Commands</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <div class="kicker">JOB SCHEDULING — REFERENCE NOTES</div>
+      <h1>Autosys</h1>
+      <p>An automated job control system for scheduling, monitoring, and reporting — built to run thousands of interdependent jobs across UNIX, Windows, and mainframe systems.</p>
+    </header>
+
+    <section id="overview">
+      <h2>Overview</h2>
+      <p>Autosys is a scheduling tool used to control large volumes of jobs across heterogeneous systems. Because it is a dedicated job-control product rather than a general-purpose timer, it supports starting conditions, dependencies, and batch processing that simple schedulers cannot express. Autosys can be operated through both a GUI and a command-line interface.</p>
+    </section>
+
+    <section id="crontab">
+      <h2>Autosys vs. Crontab</h2>
+      <div class="compare">
+        <div class="col">
+          <h4>CRONTAB</h4>
+          <ul>
+            <li>Built into Unix</li>
+            <li>Schedules using five parameters: minute, hour, day of month, month, day of week</li>
+            <li>No native concept of dependencies between jobs</li>
+          </ul>
+        </div>
+        <div class="col">
+          <h4>AUTOSYS</h4>
+          <ul>
+            <li>Dedicated scheduling tool, not tied to one OS</li>
+            <li>Controls thousands of jobs across UNIX, Windows, and mainframes</li>
+            <li>Supports starting conditions, dependencies, and batch processing</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <h2>Architecture</h2>
+      <p>Autosys is built from three components that pass job information from storage, to scheduling logic, to execution on the target machine.</p>
+      <div class="diagram">
+        <div class="node"><b>Event Server</b><span>Stores all job data</span></div>
+        <div class="arrow">→</div>
+        <div class="node"><b>Event Processor</b><span>Polls every 5 sec, dispatches ready jobs</span></div>
+        <div class="arrow">→</div>
+        <div class="node"><b>Remote Agent</b><span>Executes the job, reports back</span></div>
+      </div>
+      <p>The event processor connects to the event server roughly every five seconds to check which jobs are ready to run, then hands the job off to a remote agent on the client machine. The remote agent executes the command as defined and reports the result back to the event server.</p>
+    </section>
+
+    <section id="job-types">
+      <h2>Job Types</h2>
+      <div class="card-grid">
+        <div class="card">
+          <h4>Command job</h4>
+          <p>A single command or executable — a Windows batch file, or a Unix/PowerShell/shell script.</p>
+        </div>
+        <div class="card">
+          <h4>Box job</h4>
+          <p>A container for a set of jobs, used to organize and control process flow. A box can contain other boxes.</p>
+        </div>
+        <div class="card">
+          <h4>File watcher job</h4>
+          <p>Watches for the appearance of a specific file on the server.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="jil">
+      <h2>JIL File</h2>
+      <p><strong>JIL</strong> — Job Information Language — defines every attribute of a job. A JIL file is deployed to the Autosys server from the command line with:</p>
+      <pre><code>jil &lt; jil_file_name</code></pre>
+      <h3>Sample structure</h3>
+      <pre><code>insert_job:
+job_type:
+box_name:
+command:
+machine:
+run_days:
+start_time:
+condition:
+description:
+std_out_file:
+std_err_file:
+alarm_if_fail:
+max_run_alarm:
+min_run_alarm:
+profile: /home/variables_autosys
+include_calendar:
+exclude_calendar:</code></pre>
+    </section>
+
+    <section id="states">
+      <h2>Job States</h2>
+      <table>
+        <tr><th>State</th><th>Meaning</th></tr>
+        <tr><td>INACTIVE</td><td>Not yet processed — never run, or taken off-ice/off-hold and awaiting its starting conditions.</td></tr>
+        <tr><td>ACTIVATED</td><td>The job's top-level box is running, but this job hasn't started yet. Seen only for jobs inside a box.</td></tr>
+        <tr><td>STARTING</td><td>The event processor has told the remote agent to start the job; about to move to RUNNING.</td></tr>
+        <tr><td>RUNNING</td><td>The job is executing. For a box job, this means its contents may now start; for a command or file watcher job, the process is actually running.</td></tr>
+        <tr><td>SUCCESS</td><td>Exit code at or below the "maximum exit code for success" (default: 0). For a box, all jobs inside finished SUCCESS, or the box's success condition evaluated true.</td></tr>
+        <tr><td>FAILURE</td><td>Exit code above the success threshold (default: any nonzero code). Autosys raises an alarm.</td></tr>
+        <tr><td>TERMINATED</td><td>Killed while RUNNING — by a KILLJOB event, a failed parent box, exceeding max run time, or a manual kill. Not the same as FAILURE. Autosys raises an alarm.</td></tr>
+        <tr><td>RESTART</td><td>Could not start due to a hardware or application problem; scheduled to restart.</td></tr>
+        <tr><td>QUE_WAIT</td><td>All starting conditions are met, but no machine resources are available yet.</td></tr>
+        <tr><td>ON_HOLD</td><td>Held — will not run until it receives JOB_OFF_HOLD.</td></tr>
+        <tr><td>ON_ICE</td><td>Removed from all conditions and logic — effectively deactivated — until it receives JOB_OFF_ICE.</td></tr>
+      </table>
+    </section>
+
+    <section id="hold-ice">
+      <h2>On Hold vs. On Ice</h2>
+      <p>Both states stop a job from running, but they behave differently once dependent jobs and starting conditions come into play.</p>
+      <div class="compare">
+        <div class="col">
+          <h4>ON HOLD</h4>
+          <ul>
+            <li>Dependent jobs <em>are</em> affected — they wait for this job to finish before running.</li>
+            <li>Taking a job off hold: if starting conditions are already met, it runs immediately.</li>
+          </ul>
+        </div>
+        <div class="col">
+          <h4>ON ICE</h4>
+          <ul>
+            <li>Dependent jobs are <em>not</em> affected — they can run without waiting on this job.</li>
+            <li>Taking a job off ice does not start it, even if conditions are already met — it waits for conditions to occur again.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="events">
+      <h2>Events & Options</h2>
+      <table>
+        <tr><th>Event</th><th>Effect</th></tr>
+        <tr><td>Start</td><td>Starts the job if dependency conditions are met. Ignores date/time conditions but not job dependencies. Avoid on jobs inside boxes.</td></tr>
+        <tr><td>Force Start</td><td>Starts the job regardless of whether starting conditions are met.</td></tr>
+        <tr><td>Kill</td><td>Stops the job while it is running.</td></tr>
+        <tr><td>On Hold</td><td>Places the job on hold. Cannot be applied while STARTING or RUNNING.</td></tr>
+        <tr><td>Off Hold</td><td>Releases the hold; the job starts if its conditions are met.</td></tr>
+        <tr><td>On Ice</td><td>Deactivates the job. Cannot be applied while STARTING or RUNNING.</td></tr>
+        <tr><td>Off Ice</td><td>Reactivates the job definition; it starts next time conditions are met.</td></tr>
+        <tr><td>Send Event</td><td>Changes job status, priority, or adds a comment.</td></tr>
+        <tr><td>Cancel Event</td><td>Cancels a recent event issued through Send Event.</td></tr>
+      </table>
+    </section>
+
+    <section id="cli">
+      <h2>CLI Commands</h2>
+      <h3>Status & definition</h3>
+      <pre><code># Check status of a job
+autorep -J &lt;NAME OF JOB&gt;
+
+# View job definition / JIL
+autorep -J &lt;NAME OF JOB&gt; -q
+
+# View previous runs
+autorep -j &lt;NAME OF JOB&gt; -r -n &lt;number of runs&gt;</code></pre>
+      <h3>Controlling jobs</h3>
+      <pre><code># Start a job
+sendevent -E START_JOB -J &lt;NAME OF JOB&gt;
+
+# Force start a job
+sendevent -E FORCE_START_JOB -J &lt;NAME OF JOB&gt;
+
+# Kill a job
+sendevent -E KILL_JOB -J &lt;NAME OF JOB&gt;
+
+# Put a job on hold
+sendevent -E JOB_ON_HOLD -J &lt;NAME OF JOB&gt;
+
+# Take a job off hold
+sendevent -E JOB_OFF_HOLD -J &lt;NAME OF JOB&gt;
+
+# Put a job on ice
+sendevent -E JOB_ON_ICE -J &lt;NAME OF JOB&gt;
+
+# Take a job off ice
+sendevent -E JOB_OFF_ICE -J &lt;NAME OF JOB&gt;
+
+# Change job status (e.g. to SUCCESS)
+sendevent -E CHANGE_STATUS -S SUCCESS -J &lt;NAME OF JOB&gt;</code></pre>
+      <h3>Dependencies</h3>
+      <pre><code># Check dependencies on a job
+job_depends -c -w -J &lt;NAME OF JOB&gt;</code></pre>
+    </section>
+
+  </main>
+</div>
+<footer>Autosys reference notes — job scheduling, states, and CLI usage.</footer>
+</body>
+</html>
