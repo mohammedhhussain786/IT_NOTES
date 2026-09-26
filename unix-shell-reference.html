@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Unix & Shell Scripting Reference</title>
+<style>
+:root{
+  --bg:#0d1117; --bg2:#11161d; --panel:#151b23; --text:#dfe6ee; --muted:#8b98a9;
+  --accent:#5fb3a3; --rule:#232b36; --code-bg:#0a0e13;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#f6f5f1; --bg2:#efeee9; --panel:#ffffff; --text:#20242b; --muted:#5b6472;
+    --accent:#1f7a68; --rule:#dedcd4; --code-bg:#f1efe8;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d1117; --bg2:#11161d; --panel:#151b23; --text:#dfe6ee; --muted:#8b98a9;
+  --accent:#5fb3a3; --rule:#232b36; --code-bg:#0a0e13;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 14px); scroll-behavior:smooth;}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+  min-height:100%;
+  display:flex;
+}
+::selection{background:var(--accent);color:#fff;}
+
+/* Sidebar */
+#sidebar{
+  width:270px; flex-shrink:0; background:var(--bg2);
+  border-right:1px solid var(--rule);
+  height:100vh; height:100dvh; position:sticky; top:0;
+  padding:calc(env(safe-area-inset-top,0px) + 20px) 0 20px 0;
+  overflow-y:auto;
+}
+#sidebar .brand{
+  padding:0 22px 16px 22px; border-bottom:1px solid var(--rule); margin-bottom:10px;
+}
+#sidebar .brand h1{font-size:15px; font-weight:700; letter-spacing:.2px;}
+#sidebar .brand p{font-size:12px; color:var(--muted); margin-top:4px; line-height:1.5;}
+#sidebar nav a{
+  display:block; padding:7px 22px; font-size:13.5px; color:var(--muted);
+  text-decoration:none; border-left:2px solid transparent;
+}
+#sidebar nav a:hover{color:var(--text); background:rgba(95,179,163,.07);}
+#sidebar nav a.active{color:var(--accent); border-left-color:var(--accent); background:rgba(95,179,163,.09); font-weight:600;}
+
+#themeToggle{
+  margin:14px 22px 0 22px; font-size:12px; color:var(--muted); background:none;
+  border:1px solid var(--rule); border-radius:6px; padding:6px 10px; cursor:pointer;
+}
+#themeToggle:hover{color:var(--text); border-color:var(--accent);}
+
+/* Main */
+main{flex:1; min-width:0; padding:calc(env(safe-area-inset-top,0px) + 36px) clamp(20px,4vw,64px) 80px;}
+.hero{max-width:800px; margin-bottom:44px;}
+.hero .kicker{color:var(--accent); font-size:13px; font-weight:600; letter-spacing:.03em;}
+.hero h1{font-size:clamp(28px,4vw,40px); line-height:1.15; margin-top:8px;}
+.hero p{color:var(--muted); font-size:15.5px; margin-top:14px; max-width:640px; line-height:1.6;}
+
+section{max-width:900px; margin-bottom:52px; scroll-margin-top:24px;}
+section h2{
+  font-size:21px; padding-bottom:10px; margin-bottom:16px;
+  border-bottom:1px solid var(--rule);
+}
+section h3{font-size:15px; color:var(--accent); margin:20px 0 8px;}
+section p{color:var(--text); font-size:14.5px; line-height:1.65; margin-bottom:10px; max-width:78ch;}
+
+pre{
+  background:var(--code-bg); border:1px solid var(--rule); border-radius:8px;
+  padding:16px 18px; overflow-x:auto; font-size:13px; line-height:1.65;
+  font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+  white-space:pre-wrap; word-break:break-word;
+}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace; background:var(--code-bg); padding:1px 5px; border-radius:4px; font-size:13px;}
+
+footer{color:var(--muted); font-size:12.5px; padding-top:16px; border-top:1px solid var(--rule); max-width:900px;}
+
+@media (max-width:820px){
+  #sidebar{position:fixed; left:0; top:0; transform:translateX(-100%); transition:transform .2s ease; z-index:20; width:80vw; max-width:300px;}
+  #sidebar.open{transform:translateX(0);}
+  #menuBtn{
+    position:fixed; top:calc(env(safe-area-inset-top,0px) + 14px); left:14px; z-index:21;
+    background:var(--panel); border:1px solid var(--rule); color:var(--text);
+    border-radius:8px; padding:8px 12px; font-size:13px;
+  }
+  main{padding-top:calc(env(safe-area-inset-top,0px) + 70px);}
+}
+@media (min-width:821px){#menuBtn{display:none;}}
+</style>
+</head>
+<body>
+
+<button id="menuBtn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰ Sections</button>
+
+<aside id="sidebar">
+  <div class="brand">
+    <h1>Unix &amp; Shell Reference</h1>
+    <p>Production support, Unix architecture, and shell command notes.</p>
+  </div>
+  <nav id="nav">
+    <a href="#sdlc">SDLC &amp; Production Support</a>
+    <a href="#arch">Unix Architecture</a>
+    <a href="#basics">Login &amp; Server Basics</a>
+    <a href="#files">Files &amp; Directories</a>
+    <a href="#perms">Permissions &amp; Sticky Bit</a>
+    <a href="#textproc">Text: head/tail/wc/cut</a>
+    <a href="#sortuniq">sort, uniq, paste</a>
+    <a href="#links">Hard &amp; Soft Links</a>
+    <a href="#viewers">less / more / view / tail -f</a>
+    <a href="#vi">vi Editor</a>
+    <a href="#misc1">tee, tr, split, diff, alias</a>
+    <a href="#io">I/O Redirection</a>
+    <a href="#grep">grep / egrep / fgrep</a>
+    <a href="#process">Processes</a>
+    <a href="#find">find, xargs, exec</a>
+    <a href="#cron">Crontab</a>
+    <a href="#mailx">Mailx</a>
+    <a href="#sysres">free, top, df, du</a>
+    <a href="#archive">tar, zip, gzip</a>
+    <a href="#transfer">ftp, sftp, scp, ssh</a>
+    <a href="#net">Networking</a>
+    <a href="#sed">sed</a>
+    <a href="#awk">awk</a>
+  </nav>
+  <button id="themeToggle" onclick="toggleTheme()">Toggle light / dark</button>
+</aside>
+
+<main>
+  <div class="hero">
+    <div class="kicker">REFERENCE NOTES</div>
+    <h1>Unix &amp; Shell Scripting</h1>
+    <p>SDLC and production support fundamentals, Unix architecture, and a working reference for the shell commands used day to day &mdash; file handling, permissions, text processing, process management, scheduling, and networking.</p>
+  </div>
+
+  <section id="sdlc">
+    <h2>SDLC &amp; Production Support</h2>
+    <pre>SDLC (software development life cycle)
+Requirement analysis
+Design
+Development
+Testing
+Deployment
+Maintenance / support
+
+Production support / Application support
+- Production support is the team who works on production issues.
+- Responsible for monitoring production activities: acknowledge issues,
+  troubleshooting/investigation, and resolution.
+- May escalate issues to other teams (development, admin, etc.) whenever required.
+- Also responsible for deployment activities.
+
+Levels in production support (three levels):
+
+L1 team
+- Basic level of investigation: check-outs, monitoring, generating reports.
+- Contains only read access to the code.
+- Works as per documents (SOP - standard operating procedures).
+- Receives and acknowledges the issue, performs basic checks, and escalates
+  to L2 if it can't be resolved.
+
+L2 team
+- Performs troubleshooting, investigation, and root cause analysis (RCA).
+- Takes responsibility for production issues and performs all required steps.
+- If an issue needs code-level changes/investigation, escalates to L3.
+- Has read, write, and execute access to code (may not have write access).
+
+L3 team
+- This is the development team.
+- Works on code-level fixes and database changes, and issues L2 can't resolve.</pre>
+  </section>
+
+  <section id="arch">
+    <h2>Unix Architecture</h2>
+    <p>UNIX is an operating system made up of a set of programs that acts as a link between user and computer. Common flavors: Red Hat Linux, Sun Solaris, HP-UX, IBM AIX, Ubuntu. Red Hat Linux is the most frequently used version.</p>
+    <pre>Layers (outer to inner):
+  Hardware -> Kernel -> Shell -> User
+
+User   : executes commands; runs application programs.
+Shell  : command interpreter. Translates commands entered by the user
+         into a language the kernel understands. Types of shells:
+           - Bourne shell (sh)
+           - Bourne again shell (bash)
+           - C shell (csh)
+           - Korn shell (ksh)
+           - Tc shell (tcsh)
+         All shells have similar features but differ in execution style.
+         Default login shell varies by flavor (e.g. Red Hat -> bash,
+         Solaris -> csh).
+Kernel : the core of the OS; interacts with hardware and executes processes.
+Hardware: memory, disk, printers, etc., controlled by the kernel.
+
+Q. What shell are you currently working on?      -> echo $0
+Q. How to switch shells?                          -> type the shell name
+Q. How to find the default shell?                 -> echo $SHELL
+Q. How to find the current working shell?         -> echo $0</pre>
+  </section>
+
+  <section id="basics">
+    <h2>Login &amp; Server Basics</h2>
+    <pre>who am i     : current user info (username, terminal, date/time, login time)
+who          : all users currently logged in to the machine/server
+logname / whoami : currently logged-in username
+tty          : terminal type of the current user
+last         : login/logout info of recently logged-off users
+
+uname        : displays operating system name
+uname -r     : displays kernel version
+uname -a     : OS type, release date, kernel version, unix type, etc.
+
+Check OS version: cat /etc/*release*   (a "release" file under /etc)
+
+date         : current date, time, timezone
+  Syntax: date +%[format-option]
+  %D  mm/dd/yy        %d  day of month (01-31)
+  %a  abbrev weekday   %A  full weekday
+  %h/%b abbrev month   %B  full month name
+  %m  month (01-12)    %y  last two digits of year
+  %Y  four-digit year  %T  time HH:MM:SS (24h)
+  %H  hour  %M  minute  %S  seconds
+
+cal          : current month's calendar
+pwd          : present working directory
+clear        : clear the screen
+hostname     : server name        | hostname -i : server IP address
+who          : connected users    | who am i    : current user info
+tty          : current terminal name
+uptime       : how long server is up, users connected, avg load
+su username  : switch user account
+exit         : logout from current user account
+man command  : help pages for a given command</pre>
+  </section>
+
+  <section id="files">
+    <h2>Creating, Removing &amp; Copying Files/Directories</h2>
+    <h3>touch</h3>
+    <pre>touch file1 file2 ... filen     : create zero-byte files (many at once)
+Note: if the file already exists, its timestamp is updated to current time.
+
+stat filename   : view a file's access/modify/change timestamps
+
+touch -a filename   : change access time
+touch -m filename   : change modify time
+touch -c filename   : change access/modify/change time (without creating file)
+
+touch -t [[CC]YY]MMDDhhmm[.SS] filename
+  CC - first two digits of year   YY - last two digits of year
+  (YY 70-99 -> assumed 19xx; YY 00-37 -> assumed 20xx; max date 2038-01-18)
+  MM/DD/hh/mm/SS - month/day/hour/minute/seconds
+
+Ex: touch -m -t 202101181205.09 abc.txt
+
+Match another file's timestamp:
+  touch -r reference_filename required_filename</pre>
+    <h3>cat (create/view/append)</h3>
+    <pre>cat > filename          : create file and insert data while creating
+  ...type content...
+  Ctrl+D                : exit / save
+
+cat >> file1            : append data to an existing file
+cat file1 file2 ... filen : view/display multiple files' content at once
+
+Redirection operators:
+  >   overwrites the destination file with the source content
+  >>  appends the source content to the destination file
+
+Ex: cat file1 file2 > file3   -> copies file1+file2 into file3 (overwritten
+                                  if file3 exists, created if not)
+Ex: cat file1 file2 >> file3  -> appends file1+file2 content to file3
+
+Empty a file using cat:
+  cat a > a
+  cat > a  then Ctrl+D
+
+touch vs cat:
+  touch  -> creates only 0-byte files, many at once, changes timestamps
+  cat    -> creates one file at a time but can insert data; used to view data</pre>
+    <h3>mkdir / rm / rmdir</h3>
+    <pre>mkdir dir1 dir2 dir3 ...          : create empty directories
+mkdir -p dir1/dir2/dir3           : create directories recursively
+
+rm file1 file2 ... filen          : remove one or more files
+rm -f file1 file2 ...             : force remove
+rm -i file                        : ask for confirmation before removing
+rmdir dirname                     : remove only empty directories
+rm -r dir1/dir2/dir3              : remove directories recursively</pre>
+    <h3>cp / mv / cd</h3>
+    <pre>cp sourcefile targetfile
+  Ex: cp file1 file2   (overwrites file2 if it exists, else creates it)
+  Note: copied files get a new timestamp; use -p to preserve it:
+    cp -p file1 file2
+  cp -r dir1/dir2/dir3 /home/data   : copy directories recursively
+
+mv sourcefile targetfile
+  Ex: mv file1 file2
+  Note: if file2 already exists, mv throws an error (not silently overwritten)
+
+cd location                : change directory
+  Ex: cd /var/tmp/data
+cd ..                      : one directory back
+cd ../../../..             : four directories back
+cd /                       : go to root directory
+cd  or  cd $HOME           : go to home directory
+cd -                       : go to the previous working directory
+
+pwd                        : display current working directory</pre>
+    <h3>ls</h3>
+    <pre>ls          : list files/directories in current directory
+ls -r       : reverse alphabetical order
+ls -l       : long listing
+ls -lr      : long listing, reverse alphabetical order
+ls -t       : sort by modification/change timestamp
+ls -tr      : sort by timestamp, oldest first
+ls -ltr     : long listing, oldest first (most recent at the bottom)
+ls -a       : include hidden files
+ls -lR      : list recursively (including subdirectories)
+
+Note: a filename prefixed with "." is a hidden file.
+Create a hidden file: cat > .file_name   or   touch .file_name
+
+ls -l field layout:
+  -rw-r--xr-x  1  praveen  praveen  123  May 20 11:23  file_name
+   perms      links  user    group   size  timestamp    filename
+
+File type indicator (first character of permissions):
+  -  normal file      d  directory      l  linked file
+  |  piped file       s  socket file
+
+Wildcards with ls:
+  *          matches any number of any characters
+             Ex: ls -ltr abc*  -> files starting with "abc"
+  ?          matches exactly one character
+             Ex: ls -ltr a?c?  -> 4-char names, 1st=a, 3rd=c
+  [ ]        matches one of a set of characters
+             Ex: ls -ltr [axzy]*      -> starts with a, x, z, or y
+             Ex: ls -ltr [xmn]?[pas]? -> 4-char, 1st in {x,m,n}, 3rd in {p,a,s}
+
+Note: "ls dirname" lists the directory's own entry; run ls inside it
+(or ls -ld dirname) to long-list just that directory itself.</pre>
+  </section>
+
+  <section id="perms">
+    <h2>Permissions, Umask &amp; Sticky Bit</h2>
+    <pre>umask : default permission mask applied to new files/directories.
+  Default umask value: 022
+  022 is subtracted from 666 (files) and 777 (directories) as a base.
+  Check current umask: umask
+  Change umask:         umask value      (e.g. umask 546)
+
+chmod : change permissions after creation
+  Syntax: chmod value file_or_directory
+  Ex: chmod 666 filename
+      chmod 555 filename
+      chmod ugo+x filename
+      chmod ugo+w filename
+      chmod g+x filename
+      chmod o+w filename
+      chmod ugo-x filename
+
+Sticky bit : extra protection for files/directories - once set, only the
+owner can rename/move/remove the file or directory (not others).
+  chmod +t filename   : set sticky bit
+  chmod -t filename   : remove sticky bit
+  Identify: ls -l shows a "T" in the permission field when sticky bit is set.
+
+Inode number : unique address the OS assigns to each file.
+  Check it: ls -i filename_or_dirname</pre>
+  </section>
+
+  <section id="textproc">
+    <h2>Text Processing: head, tail, wc, cut</h2>
+    <pre>head -n filename    : first n lines of a file (default: first 10 lines)
+tail -n filename    : last n lines of a file (default: last 10 lines)
+
+| (pipe) : sends the output of one command as input to the next.
+  Ex: ls -ltr | head -5   -> only the 5 most recent files
+
+Q. Print lines 12 to 17 of a file?
+  head -17 filename | tail -6
+
+wc filename   : count characters, words, and lines
+  wc -c   characters only
+  wc -w   words only
+  wc -l   lines only
+
+Q. How many files/directories are under the current directory?
+  ls | wc -w
+
+passwd : change the current user's password
+
+cut : extract characters/fields from a file
+  cut -c1 filename        : first character of each line
+  cut -c1,4 filename      : 1st and 4th characters
+  cut -c2-5 filename      : characters 2 through 5
+  cut -c2-5,10-20 filename: characters 2-5 and 10-20
+  cut -c2- filename       : from 2nd character to end of line
+  cut -d " " -f1 filename       : first field (space-delimited)
+  cut -d " " -f1,4 filename     : 1st and 4th fields
+  cut -d " " -f2-5,10-20 filename : fields 2-5 and 10-20
+  cut -d " " -f2- filename       : from 2nd field to end
+  Note: -d sets the delimiter/field separator.</pre>
+  </section>
+
+  <section id="sortuniq">
+    <h2>sort, uniq &amp; paste</h2>
+    <pre>paste file1 file2 ... filen  : join files horizontally
+
+sort filename       : sort ascending
+sort -r filename     : sort descending
+sort -n filename     : sort numeric values correctly (default sort puts
+                        numbers before letters; -n keeps numeric order sane)
+sort -nr filename    : numeric values first, descending
+sort -u filename     : unique values only, no duplicates
+sort -nu filename    : unique + numeric-aware
+sort -nru filename   : unique + numeric + reverse
+sort -k filename     : sort by a specific field
+  sort -t ' ' -k3 filename          (or)
+  sort -t ' ' -nrk3 filename
+  Note: -t sets the field separator (default is space).
+
+uniq : shows data while removing duplicate rows (or printing only
+duplicates, or only uniques, or with a count). Duplicates are only
+detected when consecutive - always sort first.
+  sort filename | uniq       : print unique rows (dedup adjacent dupes)
+  sort filename | uniq -u    : print only rows that are unique
+  sort filename | uniq -d    : print only rows that are duplicated
+  sort filename | uniq -c    : print rows with a count</pre>
+  </section>
+
+  <section id="links">
+    <h2>Hard &amp; Soft (Symbolic) Links</h2>
+    <pre>Hard link:
+  ln source target
+  - Errors if target already exists; creates it if not.
+  - Only works on files, not directories.
+  - Source and target share the same inode number.
+  - Removing the source doesn't affect the target (or vice versa).
+  - Modifying one modifies the other (same underlying data).
+  - Same inode number in `ls -i` identifies hard-linked files.
+
+Soft (symbolic) link:
+  ln -s sourcefile targetfile
+  - Can be created on both files and directories.
+  - Source and target have different inode numbers.
+  - Removing the source breaks the target link (target becomes unusable) -
+    but recreating the source file re-activates it.
+  - Modifying the source updates the target (or vice versa) since the
+    target just points at the source.
+  - Identify with `ls -l`: an entry starting with "l" is a soft link.</pre>
+  </section>
+
+  <section id="viewers">
+    <h2>Viewing Log Files: less, more, view, tail -f</h2>
+    <pre>less filename
+  - View file content page by page, in a separate window.
+  - Navigate with scroll up/down and Enter for more.
+  - Forward search:  /keyword
+  - Backward search: ?keyword
+  - Go to end of file: G (shift+g)
+  - Live/dynamic follow: F (shift+f)
+  - Exit: q
+
+more filename
+  - View content percentage by percentage.
+  - Only scroll down (Enter); cannot scroll up.
+
+view filename
+  - Read-only mode (opens in vi, but edits are blocked).
+  - Can scroll and search like less.
+
+tail -f filename
+  - Follow the file live as new content is written.
+  - Shows the last 10 lines by default; specify a number for more,
+    e.g. tail -30 filename</pre>
+  </section>
+
+  <section id="vi">
+    <h2>vi Editor</h2>
+    <p>vi is a line editor used to create files, modify existing files, and view files. It has three modes: command mode, insert mode, and ex-command mode.</p>
+    <h3>Command mode (default on open)</h3>
+    <pre>h / l / j / k   : left / right / down / up
+w               : jump to first char of next word
+b               : jump back to first char of word
+e               : jump to end of current word
+0 (zero)        : beginning of the current line
+$               : end of the current line
+F / B           : scroll window forward / backward
+G               : go to the last line of the file
+nG              : go to the nth line of the file
+o / O           : new line below / above, then enter insert mode
+R               : replace text from cursor position
+x / nx          : delete character at cursor / n characters
+X               : delete character to the left of cursor
+dw / ndw        : delete a word / n words
+dd / ndd        : delete current line / n lines
+d0 (zero)       : delete from cursor to start of line
+d$              : delete from cursor to end of line
+u               : undo last change
+U               : undo all changes on the current line
+J               : join the next line to the current line
+
+Copy & paste:
+yy / nyy        : copy current line / n lines
+y0 (zero)       : copy from cursor to start of line
+y$              : copy from cursor to end of line
+p               : paste</pre>
+    <h3>Insert mode</h3>
+    <pre>i   : insert at cursor position
+I   : insert at the beginning of the line
+a   : append after the cursor position
+A   : append at the end of the line</pre>
+    <h3>Ex-command mode</h3>
+    <pre>:sh          temporarily return to the shell
+:w           save the file
+:q           quit (after saving)
+:wq          save and quit
+:q!          quit without saving
+:!anycommand run a unix command without leaving vi
+:nd          delete line n           (e.g. :10d deletes line 10)
+:m,n mo p    move lines m-n after line p   (e.g. :3,5 mo2)
+:m co p      copy line m after line p      (e.g. :5 co2)
+:/pattern    search forward for a pattern
+:?pattern    search backward for a pattern
+:n / :N      repeat last search (same / opposite direction)
+:se ic       ignore case      :se noic   don't ignore case
+:se nu       show line numbers :se nonu  hide line numbers
+
+Find & replace:
+:s/str1/str2         replace 1st occurrence in current line
+:s/str1/str2/g       replace all occurrences in current line
+:m,n s/str1/str2     replace 1st occurrence, lines m to n
+:m,n s/str1/str2/g   replace all occurrences, lines m to n
+:1,$ s/str1/str2     1st occurrence, whole file
+:1,$ s/str1/str2/g   all occurrences, whole file
+:1,. s/str1/str2     1st occurrence, first line to current line
+:.$ s/str1/str2      1st occurrence, current line to end
+:%s/str1/str2/g      replace all occurrences on all lines</pre>
+  </section>
+
+  <section id="misc1">
+    <h2>tee, tr, split, diff/cmp, alias, man, history</h2>
+    <h3>tee</h3>
+    <pre>Redirects command output to a file AND displays it on screen.
+  cat file1 | tee file2      : show file1's content, also write to file2
+                                (overwrites file2)
+  ls | tee file2              : same idea with ls output
+  ls | tee -a file2           : append instead of overwrite
+  cat file1 | head -10 | tee -a file4   : chainable</pre>
+    <h3>tr (translate)</h3>
+    <pre>tr 'a-z' 'A-Z' < filename           : lowercase -> uppercase
+tr [:lower:] [:upper:] < filename   : same, using character classes
+tr ' ' '\t' < filename              : spaces -> tabs
+tr ' ' ',' < filename               : space-separated -> comma-separated
+tr ' ' '\n' < filename              : spaces -> new lines
+tr -d 'a-z' < filename              : delete all lowercase letters
+tr -d 'a' < filename                : delete letter 'a'
+tr -d '0-9' < filename              : delete all digits
+tr '\n' ' ' < filename              : join all lines into one line</pre>
+    <h3>split</h3>
+    <pre>split -n filename prefix     : split into files of n lines each
+                               (default 100 lines if -n not given)
+split -l 5 filename          : split into files of 5 lines each
+split -b 10 filename         : split into files of 10 bytes each
+
+Default output naming (if no prefix given): xab, xac, xad, ... xzz</pre>
+    <h3>diff / cmp</h3>
+    <pre>diff file1 file2   : shows the changes needed to make file1 match file2
+                     (c = change, a = add, d = delete)
+cmp file1 file2    : shows only the line number of the first difference</pre>
+    <h3>alias, man, history</h3>
+    <pre>alias aliasname='any command'   : create a shortcut for a longer command
+  Ex: alias x='ls -ltr'
+unalias aliasname                : remove an alias
+alias                            : list all aliases
+
+man command_name                 : detailed help for a command
+  Ex: man cat
+
+history                          : list recently executed commands
+  !200                           : re-run command number 200 from history</pre>
+  </section>
+
+  <section id="io">
+    <h2>Input/Output Redirection</h2>
+    <pre>Device                 Stream                  Value
+Keyboard               standard input          0
+Terminal screen        standard output         1
+Terminal screen        standard error output   2
+
+cat file1 > file2        (same as: cat file1 1> file2)
+  - Redirects standard output; errors still print to screen.
+
+cat file2 2> file_name
+  - Redirects errors to a file; standard output still prints to screen.
+
+cat file1 > file2 2> file3
+  - Redirects both standard output and errors to separate files;
+    nothing prints to the screen.
+
+cat file1 > file2 2>&1
+  - &1 means "send stderr to the same place as stdout" (file2).</pre>
+  </section>
+
+  <section id="grep">
+    <h2>grep, egrep, fgrep</h2>
+    <p>grep = "globally search for regular expression and print." Searches for lines matching a given string.</p>
+    <pre>Syntax: grep [option] 'string' filename
+
+-c   count of matching lines
+-i   ignore case
+-n   show line numbers with matches
+-v   show lines that do NOT match (verbose/invert)
+-w   match the exact word
+-l   list only the filenames that contain a match
+-r   recursive search (current dir + subdirectories)
+-A   show lines after a match
+-B   show lines before a match
+-C   show lines before and after a match (combined)
+-o   count/show number of occurrences of the string
+
+^    lines that start with the given string
+$    lines that end with the given string
+
+Q. Display blank lines in a file?
+  grep "^$" filename       (or) grep -n "^$" filename   (or) grep -v . filename
+
+Q. Display all lines EXCEPT blank lines?
+  grep . filename          (or) grep -v "^$" filename
+
+Q. Count occurrences of a string in a file?
+  grep -o "string" filename | wc -l
+  tr ' ' '\n' < filename | grep -c "string"
+
+Q. Count occurrences of every distinct string in a file?
+  tr ' ' '\n' < file | sort | uniq -c
+
+Grep with AND condition (using .*):
+  grep "string1.*string2.*string3" filename
+  (.* matches zero or more of any character between the terms)
+
+egrep / grep -E : OR condition across multiple strings
+  egrep "string1|string2|string3" filename
+  grep -E "string1|string2|string3" filename
+
+fgrep / grep -F (fixed/fast grep): faster search, but does NOT support
+special characters like ^, $, . or *
+  fgrep "string" filename   (or)   grep -F "string" filename</pre>
+  </section>
+
+  <section id="process">
+    <h2>Processes</h2>
+    <p>A process is a running instance of a program, identified by a process ID (PID). Three types of processes:</p>
+    <pre>Daemon process : background process that starts at system boot and ends
+                   at shutdown.
+Orphan process : a child process whose parent process has terminated
+                   (e.g. due to network issues) before it did. It's
+                   adopted automatically by the init process, which
+                   clears its entry - no manual action needed.
+Zombie process : a completed child process that its parent has failed to
+                   "reap" (acknowledge). Its entry stays in the process
+                   table, which can leak memory - manual cleanup may be
+                   required.
+  Identify a zombie: ps -elf  -> a process state of 'Z' means zombie.</pre>
+    <h3>ps</h3>
+    <pre>ps -u        : by user
+ps -e        : every process
+ps -f        : full information
+ps -l        : long list
+ps aux       : all users, any user name
+
+Usage:
+  ps -u username
+  ps -ef
+  ps -elf
+  ps aux
+
+Key columns:
+  USER/UID  who initiated the process
+  PID       process id
+  PPID      parent process id
+  C         number of CPUs allocated
+  PRI       process priority
+  NI        nice value
+  STIME     time the process started
+  TIME      CPU time consumed
+  CMD       command/script
+  %CPU/%MEM percentage of CPU / memory used
+  STAT/S    process state (e.g. Z = zombie)
+  TTY       terminal the process is running from</pre>
+    <h3>Priority &amp; nice value</h3>
+    <pre>Process priority ranges from 0 (highest) to 39 (lowest); default is 20.
+Nice value ranges from -20 (highest priority) to 19 (lowest); default is 0.
+  PRI = 20 + nice value   (e.g. 20 + (-20) = 0)
+
+Start a process with a specific nice value:
+  nice -n value process_name
+Re-nice a process that's already running:
+  renice -n value -p pid       Ex: renice -n -20 1234</pre>
+    <h3>Foreground / background jobs</h3>
+    <pre>abc.sh &                          : run a process in the background
+abc.sh > /var/temp/file 2>&1 &    : background + redirect output/errors
+  (background jobs started with & are killed when you log out - see nohup)
+
+nohup abc.sh &   : run in the background even after logout.
+  Output defaults to nohup.out unless redirected.
+
+jobs -l          : list background jobs (sequence #, command, PID)
+fg [n]           : bring a background job to the foreground by sequence #
+                    (defaults to the most recent background job)
+Ctrl+C           : terminate the running foreground process permanently
+Ctrl+Z           : suspend the running foreground process (stopped state)
+bg [n]           : resume a suspended job in the background by sequence #
+                    (defaults to the most recently suspended job)</pre>
+    <h3>kill / killall / pkill / pgrep</h3>
+    <pre>kill -l              : list all available signals
+kill -signal pid      Ex: kill -9 1234
+  Default signal if none given: -15 (SIGTERM, "normal" kill)
+  -9  = SIGKILL (forceful kill)     -15 = SIGTERM (graceful kill)
+
+Kill a process by name (no PID known):
+  ps -ef | grep processname   -> find the PID, then kill it
+
+Kill a zombie process:
+  ps -elf | grep -w 'Z'   -> find it
+  kill -9 pid             -> may not work since it's already dead
+  kill -17 ppid            (SIGCHLD, sent to the parent) as a fallback
+  Otherwise, kill the parent process itself.
+
+killall -(signal) process_name    : kill by process name
+pkill -(signal) process_name      : kill by process name (same caution:
+  any other process matching that name also gets killed)
+pgrep -l 'process_name'           : list processes matching a name</pre>
+  </section>
+
+  <section id="find">
+    <h2>find, xargs &amp; -exec</h2>
+    <pre>Syntax: find directory_to_start -type f|d -requirement
+
+By name:
+  find . -type f -name "abc*"           : files under current dir starting "abc"
+  find . -type f -iname "*.sh"          : case-insensitive name search
+  (in the directory field, "/" means root directory)
+
+Empty files/directories:
+  find . -type f -empty     (or)  find . -type d -empty
+
+Just list files or directories (no filter):
+  find . -type f    (or)   find . -type d
+
+By permissions:
+  find . -perm 755
+  find . -type f -name "*.sh" -perm 755     (combine requirements)
+
+By number of links:
+  find . -links +2   (more than 2)
+  find . -links 2    (exactly 2)
+  find . -links -2   (less than 2)
+
+By inode number:
+  find . -inum 1234
+
+By size (K/M/G for KB/MB/GB, C for characters/bytes):
+  find . -type f -size +10K
+  find . -type f -size +10C
+
+By access/change/modify time:
+  Days:    find . -type f -atime +10   -ctime 10   -mtime -10
+  Minutes: find . -type f -amin +10    -cmin 10    -mmin -10
+
+Q. Files/directories created within the last 5 hours?
+  find . -cmin +300
+
+xargs & -exec (pass a list of arguments, one by one, to the next command):
+  find . -cmin -10 | xargs rm -r        (single-shot execution)
+  find . -cmin -10 -exec rm -r {} \;    (runs once per matched item)
+
+Q. Remove all files over 10GB in size?
+  find . -type f -size +10G -exec rm -rf {} \;
+
+Q. Remove all files older than 1 month?
+  find . -type f -ctime +30 | xargs rm -f
+
+maxdepth / mindepth (limit how deep the search goes):
+  find -maxdepth 1 -iname abc.sh   : search only the current directory
+    (maxdepth 2 -> current + one level in; 3 -> two levels in, etc.)
+  find -mindepth 2 -iname 100      : skip shallow levels before matching
+    (mindepth 1 -> search everywhere; 2 -> skip the first level, etc.)</pre>
+  </section>
+
+  <section id="cron">
+    <h2>Crontab</h2>
+    <pre>crontab -e   : edit (or create) the list of scheduled jobs, opens in vi.
+
+Each line = one job, six fields:
+  min  hour  dom  moy  dow  script
+  min  : 00-59            hour : 00-23
+  dom  : date of month, 1-31       moy : month of year, 1-12
+  dow  : day of week, 00-06 (00=Sun, 01=Mon, ... 06=Sat)
+
+* in any field         : every minute/hour/day/etc.
+val,val (comma)        : "and" (e.g. 11,15 -> minute 11 and minute 15)
+val-val (dash)         : a range (e.g. 01-12 -> hours 1 through 12)
+*/n                    : every nth value (e.g. */2 -> every 2 hours)
+
+Examples:
+  Every day at midnight:              00 00 *  *  *   abc.sh
+  Every hour:                         00 *  *  *  *   abc.sh
+  Every Thursday at 7:10 am:          10 07 *  *  04  abc.sh
+  Every Sat & Sun at 8:59 pm:         59 20 *  *  0,6 abc.sh
+  Every weekday at 8:59 pm:           59 20 *  *  1-5 abc.sh
+  1st of month, only if it's Monday:  00 00 1  *  1   abc.sh
+  Every 2 hours:                      00 */2 *  *  *   abc.sh
+  Every 10 minutes:                   */10 *  *  *  *  abc.sh
+  Note: crontab has no seconds field, so sub-minute scheduling isn't possible.
+
+Special keywords:
+  @yearly  -> 00 00 1 1 *      @monthly -> 00 00 1 * *
+  @weekly  -> 00 00 * * 00     @daily   -> 00 00 * * *
+  @hourly  -> 00 * * * *       @reboot  -> runs after every reboot
+
+crontab -l   : list all cron entries (without opening the editor)
+crontab -r   : remove all cron entries
+
+Q. Back up all cron jobs?
+  crontab -l > any_file
+
+Q. Deploy jobs from a file into crontab?
+  crontab filename
+  (Note: this REPLACES all existing crontab entries with the file's entries.)
+
+Q. Migrate all cron jobs to a new server?
+  crontab -l > /var/temp/file          (on old server)
+  transfer the file via sftp/scp
+  crontab filename                      (on new server)</pre>
+  </section>
+
+  <section id="mailx">
+    <h2>Mailx</h2>
+    <pre>Send email from a Unix server, with cc/bcc support.
+
+Syntax:
+  mailx -s subject -c cc_mailids -b bcc_mailids to_list_mailids
+  -s  subject     -c  cc (carbon copy)     -b  bcc (blind carbon copy)
+After hitting Enter, type the message body, then Ctrl+D (or '.') to send.
+
+Send with subject and message to multiple recipients:
+  mailx -s 'sample' abc.com,xyz.com,xnt.com
+
+Send with piped-in body content:
+  echo "hi I am ..." | mailx -s "subject" to_list
+
+Send a file's content as the message body:
+  cat filename | mailx -s "subject" to_list
+
+Send a file as an attachment (uses uuencode):
+  uuencode "file_to_attach" "attached_name" | mailx -s "subject" to_list
+
+Send multiple attachments:
+  (uuencode file1 file1; uuencode file2 file2) | mailx -s "subject" mailids
+
+Attachments + a message body:
+  (echo "I am x"; uuencode file1 file1; uuencode file2 file2) | mailx -s "subject" mailids
+
+Attachments + file content as the body:
+  (cat file; uuencode file1 file1; uuencode file2 file2) | mailx -s "subject" mailids
+
+Note: separate multiple recipients with commas.</pre>
+  </section>
+
+  <section id="sysres">
+    <h2>System Resources: free, top, df, du</h2>
+    <h3>free</h3>
+    <pre>free       : memory info (buffer/cache, used, swap) - default in KB
+free -g    : display in GB
+free -t    : add a "total" summary row (usage: free -gt)
+
+Buffer memory : temporary holding memory for data being transferred
+                through external devices.
+Cache memory  : temporary holding memory for frequently-used files/data,
+                for rapid/quick access.
+Free memory   : available memory for new processes.
+Swap memory   : additional memory used once RAM is consumed; pulled from
+                inactive pages.</pre>
+    <h3>top</h3>
+    <pre>top          : shows the processes using the most CPU/memory
+Shift+M      : re-sort by memory usage
+
+Output layout:
+  Line 1: server uptime, users connected, load average (1/5/15 min)
+  Line 2: total tasks - running, sleeping, stopped, zombie
+  Line 3: per-CPU utilization
+  Line 4: total RAM - used, buffer/cache, free
+  Line 5: swap memory info
+  Then: one row per process
+
+Q. How do you troubleshoot high CPU or memory utilization?
+  - free -gt (memory) or top (CPU) to check current usage.
+  - ps aux | sort -t " " -nrk4   (sort by memory)
+  - ps aux | sort -t " " -nrk3   (sort by CPU)
+  - Get the process name from the PID: ps -ef | grep pid
+  - Check the process's schedule/history in the scheduling tool or logs.
+  - If it's about to finish, monitor and wait it out.
+  - If it will run long, weigh its priority/criticality before killing it.
+  - If the top consumer is too critical to touch, evaluate the next
+    highest-consuming process instead, repeating the same checks.
+  - Among equally-important high consumers, kill the lowest-priority one.</pre>
+    <h3>df / du</h3>
+    <pre>df   : usage of partitions/file systems and disk info
+  Output: filesystem, total space, used space, available space, used %, mount
+  df -k  : show sizes in KB       df -h  : human-readable sizes
+  Ex: df -k /export/data/00   or   df -h /export/data/00
+
+du dirname   : size of subdirectories/files under the current directory
+  du -k  : KB      du -h  : human-readable
+
+Q. Top 10 largest files/directories under the current directory?
+  du -k | sort -nr | head -10
+
+Q. Clear a log file's content without removing the file, while it's
+   actively being written to?
+  cat file1 > file1
+  > file1
+  cp /dev/null > file
+  truncate -s 0 file1</pre>
+  </section>
+
+  <section id="archive">
+    <h2>tar, zip, gzip</h2>
+    <pre>tar : bundle files/directories into a single archive
+  tar -cvf file.tar file1 file2 file3   (c=create, v=verbose, f=filename)
+  Compressed (gzipped) tar: tar -cvzf file.tar file1 file2 file3
+  List contents without extracting: tar -tvf file.tar
+  Extract:                          tar -xvf file.tar
+    Extract into a specific dir:    tar -xvf file.tar -C /var/temp
+    Extract specific files:         tar -xvf file.tar file1 file2
+
+zip : compress files/directories
+  zip file.zip files_to_zip
+  Zip everything in a directory:        zip file.zip /var/tmp/*
+  Zip recursively (incl. subdirs):      zip -r file.zip /var/tmp/*
+  Unzip:                                unzip file.zip
+  List contents without unzipping:      unzip -l file.zip
+  Unzip a specific file:                unzip file.zip file1 file2
+
+gzip / gunzip : compress files (renames to .gz by default)
+  gzip file1 file2 ... filen
+  Keep the original file: gzip -c file1 > file1.gz
+  Gzip everything recursively:  gzip -r *
+  Unzip:                        gunzip file.gz
+  Unzip everything recursively: gunzip -r *
+  Note: view gzipped content with zcat/less (not cat/vi/view).
+        Search inside a gzip file with zgrep: zgrep "pattern" file.gz</pre>
+  </section>
+
+  <section id="transfer">
+    <h2>File Transfer: ftp, sftp, scp, ssh</h2>
+    <h3>ftp / sftp</h3>
+    <pre>sftp hostname_or_ip
+username:
+password:
+  (or) sftp username@hostname_or_ip
+
+Transfer TO remote server:
+  put filename              : copies to remote server's home dir by default
+  put filename /var/tmp     : copy to a specific remote directory
+  mput file1 file2 file3    (or) mput file*     : multiple files
+  put -r directory                              : directories
+
+Transfer FROM remote server:
+  get filename               : copies to current server's working dir
+  get filename /var/tmp      : copy to a specific local directory
+  mget file1 file2 file3    (or) mget file*      : multiple files
+  get -r directory                               : directories
+
+Run local commands from the sftp prompt: prefix with ! (e.g. !pwd)
+  (without !, the command runs on the remote server)
+help    : list supported sftp commands
+cd/lcd  : change remote / local directory
+ls/lls  : list remote / local directory
+pwd/lpwd: remote / local working directory
+bye / ! / exit  : exit the sftp prompt
+
+ftp vs sftp:
+  - ftp: encryption during transfer may or may not happen.
+  - sftp: encryption is always used; runs over SSH, port 22.
+  - ftp runs over port 21.</pre>
+    <h3>scp (secure copy)</h3>
+    <pre>No persistent connection is established (single-shot copy).
+
+To remote server:
+  scp filename username@ipaddress_or_hostname:/directory/path
+  scp -r dirname username@ipaddress_or_hostname:/directory/path   (directories)
+
+From remote server to local:
+  scp username@hostname_or_ip:/path/file  local_target_directory
+  scp -r username@hostname_or_ip:/path/dir  local_target_directory</pre>
+    <h3>ssh</h3>
+    <pre>Login to a remote server:
+  ssh username@hostname_or_ip
+
+Run a command/script on a remote server without logging in interactively:
+  ssh username@hostname_or_ip command_or_script
+
+Note: sftp/scp/ssh all prompt for a password by default.
+
+Password-less login (key-based auth):
+  ssh-keygen -t rsa
+    - generates a public/private RSA key pair
+    - prompts for a file to save the key (optional) and a passphrase
+      (optional; empty = no passphrase)
+    - copy the generated public key to the remote machine to enable
+      password-less sftp/scp/ssh</pre>
+  </section>
+
+  <section id="net">
+    <h2>Networking Commands</h2>
+    <pre>ping ipaddress_or_hostname
+  : checks whether a server is up and reachable; reports packet loss.
+
+hostname          : current server's name
+hostname -i        : current server's IP address
+
+uptime            : time since last reboot, plus load average (1/5/15 min)
+who -b            : last reboot time of the server
+
+nslookup ipaddress_or_hostname
+  : resolve a hostname from an IP, or vice versa.
+
+ifconfig          : current network interface configuration
+
+netstat           : network stats - which remote servers this machine is
+                     connected to, port numbers, connection status
+  netstat -a       : all listening + established connections
+  netstat -l       : only listening ports
+  netstat -l | grep "port_number"   : check if a specific port is listening
+  netstat -p       : connections with the PIDs using them
+
+telnet hostname_or_ip port_number
+  : check connectivity to a specific host/port.</pre>
+  </section>
+
+  <section id="sed">
+    <h2>sed (Stream Editor)</h2>
+    <p>sed replaces strings, prints specific lines (by pattern or line number), and deletes lines (by pattern or line number).</p>
+    <h3>Substitution</h3>
+    <pre>Syntax: sed 'nS /oldstring/newstring/g' filename
+  n = line number (default: all lines)
+  occurrence = which match on the line (default: 1st occurrence)
+  g = global - all occurrences on the line
+
+sed 's/old/new/' filename         : replace 1st occurrence, all lines
+sed '4s/old/new/2' filename       : replace 2nd occurrence, only line 4
+sed 's/old/new/g' filename        : replace all occurrences, all lines
+sed '2,7s/old/new/g' filename     : lines 2-7, all occurrences
+sed '1~2s/old/new/2' filename     : every alternate line from line 1,
+                                     2nd occurrence (~ = skip N lines)
+sed '2~3s/old/new/g' filename     : starting at line 2, skipping 3 lines
+
+Note: sed changes are temporary (printed to screen) unless redirected.
+Use -i to make permanent, in-place changes:
+  sed -i 's/old/new/g' filename
+
+Multiple requirements with -e:
+  sed -e '2s/old/new/g; s/old/new/g; 10s/old/new/4; 12,15s/old/new/g; 17~2s/old/new/g' filename
+  (or, equivalently)
+  sed '1s/old/new/; 5s/old/new/' filename
+
+Q. Comment out every line of a file (e.g. a script)?
+  sed 's/^/#/' filename      (^ = start of line)
+
+Q. Replace a string with nothing (delete it) everywhere?
+  sed 's/oldstring//g' filename
+
+Q. Replace a string only where the line starts with it?
+  sed 's/^oldstring/newstring/g' filename
+  Ex: sed 's/^ram/Rahim/g' filename
+
+Q. Uncomment all lines (remove leading #)?
+  sed 's/^#//' filename
+
+Q. Replace special characters (^, $, ., &, /)?
+  Escape them with a backslash so they lose their special meaning:
+  sed 's/\^/any_pattern/' filename
+
+Q. Stop cron jobs from running / comment out crontab entries?
+  Add "#" at the start of the line in the crontab file (temporary in the
+  editor). To make it permanent across all entries:
+    crontab -l | sed 's/^/#/' > new.cron
+    crontab new.cron</pre>
+    <h3>Printing lines (p)</h3>
+    <pre>sed -n '/pattern/p' filename    : print lines matching a pattern
+sed -n 'linenumberp' filename   : print a specific line
+(-n suppresses default output so lines aren't printed twice)
+
+sed -n '1,4p' filename          : print lines 1-4
+sed -n '2~3p' filename          : from line 2, skipping 3 lines
+sed -n '1~2p' filename          : odd lines (alternate from line 1)
+sed -n '2~2p' filename          : even lines
+sed -n '1,5!p' filename         : all lines EXCEPT 1-5
+sed -n '/^keyword/p' filename   : lines starting with a keyword
+sed -n '/keyword$/p' filename   : lines ending with a keyword
+sed -n '/^...$/p' filename      : lines exactly 3 characters long
+sed -n '/^$/p' filename         : blank lines only
+sed -n '/^$!/p' filename        : non-empty lines only</pre>
+    <h3>Deleting lines (d)</h3>
+    <pre>sed '/pattern/d' filename       : delete lines matching a pattern
+sed 'linenumberd' filename      : delete a specific line
+(add -i for permanent changes)
+
+sed '1,4d' filename             : delete lines 1-4
+sed '/keyword/d' filename       : delete lines containing a keyword
+sed '1~2d' filename             : delete alternate lines from line 1
+sed '2~2d' filename             : delete even lines
+sed '1,5!d' filename            : delete all lines EXCEPT 1-5
+sed '/^keyword/d' filename      : delete lines starting with a keyword
+sed '/keyword$/d' filename      : delete lines ending with a keyword
+sed '/^...$/d' filename         : delete lines exactly 3 characters long
+sed '/^$/d' filename            : delete blank lines
+sed '/^$!/d' filename           : delete non-empty lines</pre>
+  </section>
+
+  <section id="awk">
+    <h2>awk</h2>
+    <p>awk manipulates data and generates reports - named after its authors Aho, Weinberger, and Kernighan. It scans a file line by line, splits data into fields, matches patterns, performs an action, and can do arithmetic/string operations.</p>
+    <pre>Basic syntax: awk options [action] filename
+
+Sample file:
+  john    1234  20  35    -> record  $0
+  alex    2586  30  45    -> record  $0
+  matrix  3282  40  65    -> record  $0
+  vinay   2796  60  89    -> record  $0
+  david   2790  64  37    -> record  $0
+  field1  field2 field3 field4  ->  $1  $2  $3  $4
+
+awk '/alex/' filename             -> prints the whole matching line
+awk '{print $1}' filename         -> prints just the 1st field of every line
+awk -F " " '{print $2}' filename  -> prints the 2nd field (set -F for the
+                                      field separator; default is space)
+awk -F " " '{print $1, $2}' filename  -> prints two fields together
+awk '/alex/ {print $4}' filename      -> field 4 of the matching line only</pre>
+    <h3>Built-in variables</h3>
+    <pre>FS   field separator (default: whitespace)
+RS   record separator (default: newline)
+NF   number of fields (used in the action part)
+NR   number of records / current record number (used in the action part)
+OFS  output field separator
+ORS  output record separator
+(FS, RS, OFS, ORS are typically set in the BEGIN section)
+
+awk '{print NR, $0}' file             -> record number + full line
+awk '/matrix/ {print NR, $0}' file    -> record number for matching lines
+awk '{print NF}' file                 -> number of fields per record
+awk '/vinay/ {print NF}' file         -> field count for matching line
+awk '/vinay/ {print NF, $0}' file
+awk 'NF > 1' file                     -> all non-blank lines
+awk 'NF < 1' file                     -> only blank lines
+awk 'NF < 1 {print NR}' file          -> blank lines, with their line number
+awk 'NR > 1' file                     -> all records except the first line</pre>
+    <h3>Operators</h3>
+    <pre>Regex:        ~  like        !~  not like
+Arithmetic:   +  -  *  /  %(modulo)
+Conditional:  ==  !=  >  <  >=  <=
+Logical:      &&  ||  !
+
+awk '$1 ~ /john/ {print $0}' file     -> rows where field 1 matches "john"
+awk '$1 !~ /john/ {print $0}' file    -> rows where field 1 does NOT match
+awk '$4 ~ 89 {print $0}' file
+awk '{print $4 + $5}' file
+awk '{print $4 + 100}' file
+awk '$4 == 65' file
+awk '$5 != 278' file
+awk '$1 ~ /john/ && $4 == 35' file
+awk '$1 ~ /vinay/ || $3 == 50' file
+
+Q. Jobs scheduled between 9am and 6pm in crontab?
+  crontab -l | awk '$2 >= 09 && $2 <= 18'
+
+Q. Log lines between two timestamps?
+  awk '/2018:02:05/, /2018:02:01/' file
+
+$NF : refers to the LAST field of a line.
+Q. Extract the last field/column of a file?
+  awk -F " " '{print $NF}' filename</pre>
+    <h3>Worked example: sum transactions in a date range</h3>
+    <pre>Sample file (date, amount):
+  01-01-2021 1000
+  01-10-2021 1500
+  02-24-2021 1700
+  03-13-2021 5000
+  03-31-2021 2000
+  04-17-2021 7500
+  05-20-2021 8900
+  06-15-2021 7800
+  07-31-2021 7800
+  ...
+
+Q. Sum all transaction amounts from Apr 1 to Jun 30?
+  awk 'BEGIN { sum=0; } $1 > "03-31-2021" && $1 <= "06-30-2021" {sum = $2 + sum} END { print sum }' file_name</pre>
+    <h3>Script structure: BEGIN / action / END</h3>
+    <pre>BEGIN    : pre-processing - declare user variables (e.g. x=1) and system
+           variables (RS, FS, ORS, OFS) here, before data is processed.
+ACTION   : the main processing block - runs once per input record (loop).
+END      : post-processing - runs once after all input has been processed.
+
+  awk 'BEGIN { ... }
+       { ... }        # action/body, repeats per record
+       END { ... }' filename
+
+Sample file (comma-separated):
+  James,30,sales,Ram,2000,300
+  Alex,40,market,ta,3000,400
+  John,50,finance,ta,1000,200
+
+With a header and footer:
+  awk 'BEGIN {FS=","; OFS=" ";}
+       {print "ename dnum dname design salary incentives"}
+       {print $1, $2, $3, $4, $5, $6}
+       END {print "\ndata has been processed successfully"}' filename
+
+Q. Display the last field of the last line of a file?
+  tail -1 filename | awk -F "," '{print $NF}'
+
+Q. Display the last character of the file?
+  tail -1 filename | awk -F "," '{print $NF}' | rev | cut -c1
+
+Q. Schedule a job to run on the last day of every month?
+  00 00 28-31 * * [[ `cal | awk '{print $NF}' | tail -1` -eq `date +%d` ]] && script.sh</pre>
+  </section>
+
+  <footer>Unix &amp; shell scripting reference notes &middot; commands cover Red Hat-style Linux/bash unless noted.</footer>
+</main>
+
+<script>
+function toggleTheme(){
+  const r=document.documentElement;
+  const cur=r.getAttribute('data-theme');
+  r.setAttribute('data-theme', cur==='dark' ? 'light' : 'dark');
+}
+// scrollspy
+const links=[...document.querySelectorAll('#nav a')];
+const sections=links.map(a=>document.querySelector(a.getAttribute('href')));
+function onScroll(){
+  let idx=0;
+  const y=window.scrollY+100;
+  sections.forEach((s,i)=>{ if(s && s.offsetTop<=y) idx=i; });
+  links.forEach(a=>a.classList.remove('active'));
+  if(links[idx]) links[idx].classList.add('active');
+}
+document.addEventListener('scroll', onScroll);
+onScroll();
+// close mobile sidebar on nav click
+links.forEach(a=>a.addEventListener('click', ()=>document.getElementById('sidebar').classList.remove('open')));
+</script>
+</body>
+</html>
