@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shell Scripting — Notes</title>
+<style>
+  :root{
+    --bg:#0f172a;
+    --panel:#111827;
+    --panel-2:#0b1220;
+    --accent:#38bdf8;
+    --accent-2:#a78bfa;
+    --text:#e5e7eb;
+    --muted:#94a3b8;
+    --code-bg:#0a0f1c;
+    --border:#1f2937;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(180deg,#0b1120 0%, #0f172a 100%);
+    color:var(--text);
+    line-height:1.65;
+  }
+  .layout{
+    display:flex;
+    max-width:1200px;
+    margin:0 auto;
+  }
+  nav.toc{
+    position:sticky;
+    top:0;
+    align-self:flex-start;
+    width:270px;
+    min-width:220px;
+    height:100vh;
+    overflow-y:auto;
+    padding:28px 18px 40px 24px;
+    border-right:1px solid var(--border);
+    background:var(--panel-2);
+  }
+  nav.toc h2{
+    font-size:0.75rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 14px 0;
+  }
+  nav.toc a{
+    display:block;
+    color:var(--text);
+    text-decoration:none;
+    font-size:0.9rem;
+    padding:6px 10px;
+    border-radius:6px;
+    margin-bottom:2px;
+    opacity:0.85;
+  }
+  nav.toc a:hover{
+    background:rgba(56,189,248,0.12);
+    color:var(--accent);
+    opacity:1;
+  }
+  main{
+    flex:1;
+    min-width:0;
+    padding:40px 48px 80px 48px;
+  }
+  header.hero{
+    margin-bottom:36px;
+    padding-bottom:24px;
+    border-bottom:1px solid var(--border);
+  }
+  header.hero h1{
+    font-size:2.1rem;
+    margin:0 0 8px 0;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  header.hero p{
+    color:var(--muted);
+    margin:0;
+    font-size:0.95rem;
+  }
+  section{
+    margin-bottom:44px;
+    padding-top:8px;
+  }
+  section h2{
+    font-size:1.4rem;
+    color:var(--accent);
+    border-left:4px solid var(--accent);
+    padding-left:12px;
+    margin:0 0 14px 0;
+  }
+  section h3{
+    font-size:1.1rem;
+    color:var(--accent-2);
+    margin:24px 0 10px 0;
+  }
+  section h4{
+    font-size:1rem;
+    color:var(--text);
+    margin:18px 0 8px 0;
+    font-weight:600;
+  }
+  p{margin:0 0 12px 0;}
+  ul, ol{margin:0 0 14px 0; padding-left:22px;}
+  li{margin-bottom:6px;}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:14px 0 20px 0;
+    font-size:0.92rem;
+  }
+  th, td{
+    border:1px solid var(--border);
+    padding:8px 12px;
+    text-align:left;
+  }
+  th{
+    background:var(--panel);
+    color:var(--accent);
+  }
+  tr:nth-child(even) td{
+    background:rgba(255,255,255,0.02);
+  }
+  code{
+    background:var(--code-bg);
+    color:#7ee787;
+    padding:2px 6px;
+    border-radius:4px;
+    font-family:"Fira Code","Consolas",monospace;
+    font-size:0.88em;
+  }
+  pre{
+    background:var(--code-bg);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:14px 16px;
+    overflow-x:auto;
+    margin:12px 0 18px 0;
+  }
+  pre code{
+    background:none;
+    padding:0;
+    color:#d1f7d1;
+    font-size:0.87rem;
+    line-height:1.55;
+  }
+  .callout{
+    background:rgba(167,139,250,0.08);
+    border-left:4px solid var(--accent-2);
+    padding:10px 14px;
+    border-radius:6px;
+    margin:14px 0;
+    font-size:0.92rem;
+    color:var(--text);
+  }
+  .callout strong{color:var(--accent-2);}
+  .qa{
+    background:rgba(56,189,248,0.06);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:14px 18px;
+    margin:16px 0;
+  }
+  .qa .q{
+    font-weight:600;
+    color:var(--accent);
+    margin-bottom:8px;
+  }
+  .badge{
+    display:inline-block;
+    font-size:0.72rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--muted);
+    border:1px solid var(--border);
+    padding:2px 8px;
+    border-radius:999px;
+    margin-bottom:8px;
+  }
+  hr.sep{
+    border:none;
+    border-top:1px dashed var(--border);
+    margin:28px 0;
+  }
+  @media (max-width: 900px){
+    .layout{flex-direction:column;}
+    nav.toc{
+      position:relative;
+      width:100%;
+      height:auto;
+      border-right:none;
+      border-bottom:1px solid var(--border);
+    }
+    main{padding:28px 20px 60px 20px;}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="toc">
+    <h2>Contents</h2>
+    <a href="#intro">Shell Scripting Basics</a>
+    <a href="#variables">Variables in UNIX</a>
+    <a href="#profile">.profile</a>
+    <a href="#create-execute">Creating &amp; Executing Scripts</a>
+    <a href="#echo">Echo</a>
+    <a href="#read">Read</a>
+    <a href="#expr-bc">Expr &amp; bc</a>
+    <a href="#if">If Statements</a>
+    <a href="#operators">Operators</a>
+    <a href="#test">Test</a>
+    <a href="#case">Case Statement</a>
+    <a href="#loops">Loops</a>
+    <a href="#loop-scripts">Loop Practice Scripts</a>
+    <a href="#break-continue">Break &amp; Continue</a>
+    <a href="#cli-args">Command Line Arguments</a>
+    <a href="#special-args">Special Arguments</a>
+    <a href="#functions">Functions</a>
+    <a href="#set-x">set -x (Debug Mode)</a>
+    <a href="#oracle">Unix with Oracle</a>
+    <a href="#practice">Practice Scripts</a>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <h1>Shell Scripting</h1>
+      <p>A structured reference — variables, control flow, loops, functions, command‑line arguments, and Unix–Oracle integration.</p>
+    </header>
+
+    <section id="intro">
+      <h2>Shell Scripting Basics</h2>
+      <p>Shell scripting is a collection of commands stored in a file. We create and execute shell scripts to automate or simplify frequently performed operations. Shell scripts are typically saved with a <code>.sh</code> extension (e.g. <code>mytask.sh</code>).</p>
+      <p>Using a shell script we can perform actions such as:</p>
+      <ul>
+        <li>Manipulation of data across different files</li>
+        <li>Connecting to a database and performing database operations</li>
+        <li>Executing third-party programs such as Java, C++, etc.</li>
+        <li>Transferring data from one machine to another</li>
+      </ul>
+    </section>
+
+    <section id="variables">
+      <h2>Variables in UNIX</h2>
+      <p>A variable is a character string that stores a value. We can assign a number, text, filename, or any special data to a variable.</p>
+      <h3>Rules to create shell variables</h3>
+      <ul>
+        <li>A variable name is any combination of alphabets, digits, and underscore (<code>_</code>)</li>
+        <li>No commas or blanks are allowed within a variable name</li>
+        <li>A variable name is case sensitive</li>
+        <li>The first character of the variable name must be either an alphabet or an underscore (<code>_</code>)</li>
+        <li>A value with more than one word must be enclosed in double quotes — e.g. <code>x="hcl technologies"</code></li>
+        <li>A variable that is defined but not assigned a value is called a <strong>null variable</strong></li>
+        <li>To assign a command's output to a variable, enclose the command in backticks — e.g. <code>x=`pwd`</code></li>
+      </ul>
+
+      <h3>Types of variables</h3>
+      <ol>
+        <li>System defined variables</li>
+        <li>User defined variables</li>
+      </ol>
+
+      <h4>1. System defined variables</h4>
+      <p>These are created automatically when the operating system is installed. All system defined variables are in <strong>capital letters</strong>. The <code>env</code> command lists all system defined variables along with user defined global variables.</p>
+      <table>
+        <tr><th>Variable</th><th>Meaning</th></tr>
+        <tr><td><code>HOME</code></td><td>User's home directory</td></tr>
+        <tr><td><code>TERM</code></td><td>Terminal type</td></tr>
+        <tr><td><code>USER</code></td><td>Currently logged in user name</td></tr>
+        <tr><td><code>SHELL</code></td><td>Default shell of the operating system</td></tr>
+        <tr><td><code>PATH</code></td><td>List of directories (separated by <code>:</code>) searched for commands. Whenever a command is typed, the system searches these directories in order.</td></tr>
+      </table>
+
+      <h4>2. User defined variables</h4>
+      <p>These are variables declared by the user to simplify tasks. They come in three types:</p>
+
+      <h4>A. Local variable</h4>
+      <p>Local variables are usable within the current prompt or within a script — they cannot be used across multiple scripts.</p>
+      <pre><code>variable_name=value
+x=100</code></pre>
+
+      <h4>B. Global variable</h4>
+      <p>Global variables can be used across multiple scripts once declared at the prompt. Note: if a global variable is created <em>inside</em> a script, it stays valid only within that script's session — it cannot be used elsewhere at the prompt. Global variables remain active until the session is closed.</p>
+      <pre><code># Create a global variable
+export a=100
+
+# Convert a local variable to global
+export a
+
+# Unset (remove) a variable
+unset a</code></pre>
+
+      <h4>C. Read-only variable</h4>
+      <p>A variable which cannot be modified or unset.</p>
+      <pre><code>readonly variablename</code></pre>
+    </section>
+
+    <section id="profile">
+      <h2>.profile — User's Profile</h2>
+      <p>The <code>.profile</code> file contains user-defined variables along with alias names, etc. When a user logs in, the operating system executes several system files to set up the user's account before returning a prompt.</p>
+      <ol>
+        <li>The OS first checks <code>/etc/profile</code>, the "admin profile," which holds multiple system defined variables.</li>
+        <li>It then searches for the user's profile file under the <strong>home directory</strong>.</li>
+        <li>If a file such as <code>.profile</code> exists (the exact name varies by shell), it is initialized.</li>
+        <li>The user can declare variables and alias names in this file.</li>
+      </ol>
+
+      <table>
+        <tr><th>Shell</th><th>Profile file</th></tr>
+        <tr><td><code>bash</code></td><td><code>.bash_profile</code></td></tr>
+        <tr><td><code>sh</code></td><td><code>.profile</code></td></tr>
+        <tr><td><code>csh</code></td><td><code>.login</code></td></tr>
+        <tr><td><code>tcsh</code></td><td><code>.login</code></td></tr>
+        <tr><td><code>ksh</code></td><td><code>.profile</code></td></tr>
+      </table>
+
+      <p>After editing the profile file (adding/removing variables or aliases), changes normally take effect after logging out and back in. To apply the changes immediately, without logging out, "source" the file:</p>
+      <pre><code>. .bash_profile
+. .profile
+. .login</code></pre>
+      <div class="callout"><strong>Note:</strong> Global variables intended to persist across sessions should be created in the <code>.profile</code> file.</div>
+    </section>
+
+    <section id="create-execute">
+      <h2>Creating &amp; Executing a Shell Script</h2>
+      <p>A shell script is simply a file containing multiple commands. It can be created like a normal file, using commands such as <code>cat</code> or <code>vi</code>. The script name can be anything, but a <code>.sh</code> extension helps distinguish it from ordinary files.</p>
+
+      <h3>Ways to execute a script</h3>
+      <pre><code># 1. Using the shell name
+bash mytask.sh
+
+# 2. Using relative path (requires execute permission)
+./mytask.sh
+
+# 3. Using absolute path
+/home/user/dir1/mytask.sh</code></pre>
+      <p>Execute permission is required to run a script directly (methods 2 and 3). Running it via the shell name (method 1) does not require execute permission.</p>
+      <div class="callout"><strong>Note:</strong> When a script is executed by explicitly naming a shell (e.g. <code>bash mytask.sh</code>), it always runs under that specific shell, regardless of the shebang line.</div>
+
+      <div class="qa">
+        <div class="q">Q. What is the very first line of a shell script, and what is its purpose?</div>
+        <p><strong>Ans:</strong> The first line is called the <strong>shebang</strong> (or "hash-bang"):</p>
+        <pre><code>#!/bin/bash</code></pre>
+        <p>The shebang specifies which shell should be used to interpret the script. It isn't mandatory — if omitted, the script runs under the currently logged-in shell.</p>
+      </div>
+    </section>
+
+    <section id="echo">
+      <h2>Echo</h2>
+      <p><code>echo</code> is used to print a statement or a user-specific value.</p>
+      <pre><code>echo "I am working for hcl"
+
+x=HCL
+echo "I am working for $x"
+# Output: I am working for HCL</code></pre>
+      <div class="callout">
+        <strong>Note:</strong> Inside double quotes (<code>" "</code>) variables and command substitutions are expanded. Inside single quotes (<code>' '</code>) they are <em>not</em> expanded.
+      </div>
+      <div class="qa">
+        <div class="q">Q. How do you print a command's output inside a statement?</div>
+        <pre><code>echo "I am in `pwd`"</code></pre>
+      </div>
+    </section>
+
+    <section id="read">
+      <h2>Read</h2>
+      <p><code>read</code> is used to read values at run time.</p>
+      <pre><code>#!/bin/bash
+echo "enter any two values"
+read a b
+echo "a value is $a, b value is $b"
+
+# Execution: ./a.sh
+# Enter: 10 20
+# Output: a value is 10, b value is 20</code></pre>
+    </section>
+
+    <section id="expr-bc">
+      <h2>Expr &amp; bc</h2>
+      <p><code>expr</code> is used to evaluate numerical operations.</p>
+      <pre><code>expr 10 + 20
+# Output: 30</code></pre>
+      <p><code>bc</code> (basic calculator) is another way to perform calculations. Typing <code>bc</code> opens an interactive prompt; press <code>Ctrl+D</code> to exit.</p>
+      <pre><code>#!/bin/bash
+echo "enter two values"
+read a b
+c=`expr $a + $b`
+echo $c
+
+# Execution: bash script.sh
+# enter values: 30 40
+# Output: 70</code></pre>
+      <p>Alternative using arithmetic expansion:</p>
+      <pre><code>#!/bin/bash
+echo "enter two values"
+read a b
+c=$(( a + b ))
+echo $c</code></pre>
+    </section>
+
+    <section id="if">
+      <h2>If Statements</h2>
+      <p>If conditions check a condition and perform an action accordingly. There are three forms:</p>
+      <ul>
+        <li><code>if – then – fi</code></li>
+        <li><code>if – then – else – fi</code></li>
+        <li><code>if – then – elif – else – fi</code></li>
+      </ul>
+
+      <h3>1. if – then – fi</h3>
+      <pre><code>if [ condition ]
+then
+    statement1
+    statement2
+fi</code></pre>
+      <pre><code>#!/bin/bash
+echo "enter marks"
+read mar
+if [ $mar -ge 35 ]
+then
+    echo "pass"
+fi</code></pre>
+
+      <h3>2. if – then – else – fi</h3>
+      <pre><code>#!/bin/bash
+echo "enter marks"
+read mar
+if [ $mar -ge 35 ]
+then
+    echo "pass"
+else
+    echo "fail"
+fi</code></pre>
+
+      <h3>3. if – then – elif – else – fi</h3>
+      <p>Multiple <code>elif</code> conditions are allowed.</p>
+      <pre><code>#!/bin/bash
+echo "enter total marks"
+read mar
+if [ $mar -ge 90 ]
+then
+    echo "grade a"
+elif [ $mar -ge 70 -a $mar -lt 90 ]
+then
+    echo "grade b"
+elif [ $mar -ge 60 -a $mar -lt 70 ]
+then
+    echo "first class"
+elif [ $mar -ge 35 -a $mar -lt 60 ]
+then
+    echo "second class"
+else
+    echo "fail"
+fi</code></pre>
+
+      <h3>Example using == operator</h3>
+      <pre><code>#!/bin/bash
+echo "enter name"
+read name
+if [ $name == alex ]
+then
+    echo "no. 1 employee"
+else
+    echo "not no. 1 employee"
+fi</code></pre>
+
+      <h3>Example: cricketer name</h3>
+      <pre><code>#!/bin/bash
+echo "enter cricketer name"
+read player
+if [ -z $player ]
+then
+    echo "please enter player name"
+elif [ $player == dhoni -o $player == karthik ]
+then
+    echo "wicket keeper"
+elif [ $player == dravid -o $player == raina ]
+then
+    echo "middle order player"
+else
+    echo "other player"
+fi</code></pre>
+    </section>
+
+    <section id="operators">
+      <h2>Operators</h2>
+      <h3>Relational operators</h3>
+      <table>
+        <tr><th>Operator</th><th>Meaning</th></tr>
+        <tr><td><code>-eq</code></td><td>Equal to</td></tr>
+        <tr><td><code>-ne</code></td><td>Not equal to</td></tr>
+        <tr><td><code>-lt</code></td><td>Less than</td></tr>
+        <tr><td><code>-le</code></td><td>Less than or equal to</td></tr>
+        <tr><td><code>-gt</code></td><td>Greater than</td></tr>
+        <tr><td><code>-ge</code></td><td>Greater than or equal to</td></tr>
+        <tr><td><code>==</code></td><td>Equal to (strings)</td></tr>
+        <tr><td><code>!=</code></td><td>Not equal to (strings)</td></tr>
+      </table>
+      <div class="callout"><strong>Difference between <code>-eq</code> and <code>==</code>:</strong> <code>-eq</code> compares only numerical (integer) values, while <code>==</code> can compare both numerical values and strings.</div>
+
+      <h3>Logical operators</h3>
+      <table>
+        <tr><th>Operator</th><th>Meaning</th></tr>
+        <tr><td><code>-a</code></td><td>AND condition</td></tr>
+        <tr><td><code>-o</code></td><td>OR condition</td></tr>
+        <tr><td><code>!</code></td><td>NOT condition</td></tr>
+      </table>
+
+      <h3>String operators</h3>
+      <table>
+        <tr><th>Operator</th><th>Meaning</th></tr>
+        <tr><td><code>-z</code></td><td>True if the string length is zero</td></tr>
+        <tr><td><code>-n</code></td><td>True if the string length is non-zero</td></tr>
+      </table>
+
+      <h3>File test operators</h3>
+      <table>
+        <tr><th>Operator</th><th>Meaning</th></tr>
+        <tr><td><code>-f</code></td><td>True if it's an ordinary/normal file (not a directory or special file)</td></tr>
+        <tr><td><code>-d</code></td><td>True if it's a directory</td></tr>
+        <tr><td><code>-s</code></td><td>True if the file size is greater than zero</td></tr>
+        <tr><td><code>-r</code></td><td>True if the file is readable (has read access)</td></tr>
+        <tr><td><code>-w</code></td><td>True if the file is writable (has write access)</td></tr>
+        <tr><td><code>-x</code></td><td>True if the file has execute permission</td></tr>
+        <tr><td><code>-k</code></td><td>True if the sticky bit is set</td></tr>
+        <tr><td><code>-h</code></td><td>True if the file is a symbolic/soft link</td></tr>
+      </table>
+    </section>
+
+    <section id="test">
+      <h2>Test</h2>
+      <p><code>test</code> is used to evaluate an if-condition in terms of true/false — it eliminates the need for square brackets in the if condition.</p>
+      <pre><code>#!/bin/bash
+echo "enter telephone number"
+read number
+if test $number -eq +91
+then
+    echo "india"
+else
+    echo "other country"
+fi</code></pre>
+
+      <h3>File test operator example</h3>
+      <pre><code>echo "enter file name"
+read fname
+if test -f $fname
+then
+    echo "file exists and is a normal file"
+elif test -d $fname
+then
+    echo "file exists and is a directory"
+else
+    echo "other file"
+fi</code></pre>
+    </section>
+
+    <section id="case">
+      <h2>Case Statement</h2>
+      <p>The case statement compares multiple values and performs the matching action.</p>
+      <pre><code>case value in
+    choice1) action ;;
+    choice2) action ;;
+    choicen) action ;;
+    *) action ;;
+esac</code></pre>
+      <pre><code>#!/bin/bash
+echo "enter company name"
+read cname
+case $cname in
+    IBM|HP|Wipro) echo "product based company" ;;
+    HCL|TCS|Infosys) echo "service based company" ;;
+    *) echo "other company" ;;
+esac</code></pre>
+    </section>
+
+    <section id="loops">
+      <h2>Loops</h2>
+      <p>Loops perform repetitive (iterative) actions based on a condition. There are three types:</p>
+      <ul>
+        <li>while loop</li>
+        <li>until loop</li>
+        <li>for loop</li>
+      </ul>
+
+      <h3>1. While loop</h3>
+      <p>The condition must be <strong>true</strong> to enter the loop.</p>
+      <pre><code>while [ condition ]
+do
+    statements
+done</code></pre>
+      <pre><code>i=1
+while [ $i -le 10 ]
+do
+    echo $i
+    i=`expr $i + 1`   # or: i=$(($i+1))
+done</code></pre>
+
+      <h4>While loop to read the lines of a file</h4>
+      <pre><code>while read line
+do
+    echo $line
+done < filename</code></pre>
+
+      <h3>2. Until loop</h3>
+      <p>The condition must be <strong>false</strong> to enter the loop.</p>
+      <pre><code>until [ condition ]
+do
+    statements
+done</code></pre>
+      <pre><code>i=1
+until [ $i -eq 11 ]
+do
+    echo $i
+    i=`expr $i + 1`
+done</code></pre>
+
+      <h3>3. For loop</h3>
+      <p>The for loop performs an action over a list of arguments.</p>
+      <pre><code>for variable_name in list_of_arguments
+do
+    statements
+done</code></pre>
+      <pre><code>for i in 1 2 3 4 5 6 7 8 9 10   # or: for i in {1..10}
+do
+    echo $i
+done</code></pre>
+    </section>
+
+    <section id="loop-scripts">
+      <h2>Loop Practice Scripts</h2>
+
+      <div class="qa">
+        <div class="q">Q. Create 100 empty files at a time with a .txt extension using any loop.</div>
+        <pre><code>i=1
+while [ $i -le 100 ]
+do
+    touch $i.txt
+    i=$(( i + 1 ))
+done</code></pre>
+      </div>
+
+      <div class="qa">
+        <div class="q">Q. Rename all files in the current directory with a .sh extension.</div>
+        <pre><code>#!/bin/bash
+for i in `ls -ltr | grep "^-" | grep -v ".sh$" | awk '{ print $NF }'`
+do
+    y=`echo $i | awk -F "." '{ print $1 }'`
+    mv $i $y.sh
+done</code></pre>
+      </div>
+
+      <div class="qa">
+        <div class="q">Q. Write a script to copy all even lines of a file into one file, and all odd lines into another file.</div>
+        <pre><code>#!/bin/bash
+echo "enter the file name"
+>even.out
+>odd.out
+read fname
+if [ -f $fname -a -s $fname ]
+then
+    i=1
+    while read line
+    do
+        res=`expr $i % 2`
+        if [ $res -eq 0 ]
+        then
+            echo $line >>even.out
+        else
+            echo $line >>odd.out
+        fi
+        i=$(($i+1))
+    done <$fname
+else
+    echo "entered file is not valid"
+fi</code></pre>
+      </div>
+
+      <div class="qa">
+        <div class="q">Q. Sort files under a directory: empty files → <code>empty_dir</code>, non-empty regular files → <code>normal_dir</code>, directories → <code>dir_dir</code>, everything else → <code>other_dir</code>.</div>
+        <pre><code>for i in /var/tmp/*
+do
+    if [ -f $i -a -s $i ]
+    then
+        cp $i normal_dir
+    elif [ -f $i ]
+    then
+        cp $i empty_dir
+    elif [ -d $i ]
+    then
+        cp -r $i dir_dir
+    else
+        cp $i other_dir
+    fi
+done</code></pre>
+      </div>
+    </section>
+
+    <section id="break-continue">
+      <h2>Break &amp; Continue</h2>
+      <p><code>break</code> and <code>continue</code> control loop iteration once a specific condition is met.</p>
+
+      <h3>Break</h3>
+      <p>Terminates execution of the <strong>entire loop</strong> when the given condition is met.</p>
+      <pre><code>for i in 1 2 3 4 5 6 7 8 9 10
+do
+    if [ $i -eq 5 ]
+    then
+        break
+    fi
+    echo $i
+done</code></pre>
+
+      <h3>Continue</h3>
+      <p>Skips only the <strong>current iteration</strong>, not the entire loop.</p>
+      <pre><code>for i in 1 2 3 4 5 6 7 8 9 10
+do
+    if [ $i -eq 5 ]
+    then
+        continue
+    fi
+    echo $i
+done</code></pre>
+    </section>
+
+    <section id="cli-args">
+      <h2>Command Line Arguments (Positional Parameters)</h2>
+      <p>Command line arguments pass values to a script at execution time. They are denoted <code>$1</code>, <code>$2</code> … <code>$n</code>.</p>
+      <pre><code>#!/bin/bash
+echo "my name is $1"
+echo "I am from $2"
+echo "I am working for $3"
+
+# Execution: ./script.sh Praveen ap hcl
+# Output:
+# my name is Praveen
+# I am from ap
+# I am working for hcl</code></pre>
+
+      <h3>Beyond the 9th argument</h3>
+      <p>Referencing <code>$10</code> directly is interpreted as <code>$1</code> followed by a literal <code>0</code>, not the tenth argument. To access more than 9 arguments, use the <code>shift</code> command, or braces.</p>
+      <pre><code>#!/bin/bash
+echo $1 $2 $3 $4 $5 $6 $7 $8 $9
+shift
+echo $1 $2 $3 $4 $5 $6   # what was $10, $11 ... is now shifted into $1, $2 ...</code></pre>
+      <div class="callout"><strong>Note:</strong> By default, <code>shift</code> shifts arguments by one position — the second argument becomes the first, the third becomes the second, and so on. Use <code>shift 9</code> to shift by nine positions at once (then reference from <code>$1</code> again).</div>
+
+      <h3>Passing more than 9 arguments using braces</h3>
+      <pre><code>#!/bin/bash
+echo ${1} ${2} ${3} ${4} ${5} ${6} ${7} ${8} ${9} ${10} ${11} ${12} ${13} ${14}
+
+# Execution: bash script.sh a b c d e f g h i j k l m n
+# Output: a b c d e f g h i j k l m n</code></pre>
+    </section>
+
+    <section id="special-args">
+      <h2>Special Arguments</h2>
+      <table>
+        <tr><th>Argument</th><th>Meaning</th></tr>
+        <tr><td><code>$#</code></td><td>Total number of command line arguments passed to the script</td></tr>
+        <tr><td><code>$*</code></td><td>All command line arguments (excluding <code>$0</code>)</td></tr>
+        <tr><td><code>$@</code></td><td>Similar to <code>$*</code> — all command line arguments</td></tr>
+        <tr><td><code>$$</code></td><td>Process ID of the current shell</td></tr>
+        <tr><td><code>$!</code></td><td>Process ID of the last/latest background process</td></tr>
+        <tr><td><code>$?</code></td><td>Exit status of the last executed command (0 = success)</td></tr>
+        <tr><td><code>$-</code></td><td>Current shell settings</td></tr>
+        <tr><td><code>$0</code></td><td>Name of the shell/script currently executing</td></tr>
+      </table>
+      <div class="callout"><strong>Note:</strong> <code>echo $0</code> at the prompt shows the current shell name; used inside a script, it shows the script's own name.</div>
+
+      <h3>Difference between $* and $@</h3>
+      <p>Both pass all command line arguments. Without quotes, <code>$*</code> and <code>$@</code> behave the same — each argument is treated as a separate value. Quoted as <code>"$*"</code>, all arguments are combined into a single value/string. Quoted as <code>"$@"</code>, each argument still remains a separate value, regardless of quoting.</p>
+
+      <div class="qa">
+        <div class="q">Q. How do you kill the latest background process?</div>
+        <p><strong>Ans:</strong> Get its PID with <code>echo $!</code>, then terminate it with the <code>kill</code> command.</p>
+      </div>
+    </section>
+
+    <section id="functions">
+      <h2>Functions</h2>
+      <p>Functions execute repetitive tasks (sub-programs) and help reduce code duplication. Code written inside a function can be called anywhere using the function's name — useful when reusing the same logic multiple times in a script.</p>
+      <pre><code>function_name ()
+{
+    code or commands
+}</code></pre>
+      <pre><code>abc ()
+{
+    echo "I am in bangalore"
+    echo "I am from ap"
+    echo "I am working for one of the MNC"
+}
+
+# Call it simply as:
+abc</code></pre>
+
+      <h3>Functions with command line arguments</h3>
+      <pre><code>xyz ()
+{
+    echo "I am in $1"
+    echo "I am from $2"
+    echo "I am working for $3"
+}
+
+# Calling:
+xyz Bangalore ap hcl</code></pre>
+    </section>
+
+    <section id="set-x">
+      <h2>set -x (Debug Mode)</h2>
+      <p><code>set -x</code> enables debug mode in a shell script, displaying each command and its arguments as they execute.</p>
+      <pre><code>set -x    # turn debug mode on
+set +x    # turn debug mode off</code></pre>
+    </section>
+
+    <section id="oracle">
+      <h2>Unix with Oracle</h2>
+      <p>We can connect to an Oracle database from the Unix prompt to perform data operations, using <code>sqlplus</code>.</p>
+      <pre><code>sqlplus username/password@databasename
+
+# -s (silent) suppresses Oracle's connection banner/version output
+sqlplus -s username/password@databasename</code></pre>
+      <div class="callout"><strong>Note:</strong> Oracle must be installed to connect via <code>sqlplus</code>. Once installed, several Oracle environment variables are typically set:</div>
+      <pre><code>export ORACLE_BASE=/dev/oracle
+export ORACLE_HOME=$ORACLE_BASE/product/org
+export PATH=$ORACLE_HOME/bin</code></pre>
+
+      <h3>1. Check whether the database connection succeeded</h3>
+      <pre><code>#!/bin/bash
+if [ $# != 3 ]
+then
+    echo "can't connect to database without username/password/database name"
+else
+    sqlplus -s $1/$2@$3
+    exit
+    if [ $? -eq 0 ]
+    then
+        echo "successfully connected to oracle"
+    else
+        echo "unable to connect to database"
+    fi
+fi</code></pre>
+
+      <h3>2. Here document</h3>
+      <p>A "here document" is used to feed a set of lines as input — for example, passing a set of SQL statements to <code>sqlplus</code>.</p>
+      <pre><code>wc -l << EOF
+I am Praveen
+I am in Bangalore
+I am from ap
+EOF</code></pre>
+      <div class="callout"><strong>Note:</strong> <code>EOF</code> is just the "here document" delimiter name — any name can be used, but the same name must close it.</div>
+      <pre><code>sqlplus -s $1/$2@$3 << EOF
+select * from emp;
+desc emp;
+select * from dual;
+exit
+EOF
+
+# Execution:
+bash script.sh Praveen password db_name</code></pre>
+
+      <h3>Using a variable inside a SQL query</h3>
+      <pre><code>#!/bin/bash
+x=3000
+sqlplus -s $1/$2@$3 << EOF
+select * from emp where sal > $x;
+exit
+EOF</code></pre>
+
+      <h3>Spool command</h3>
+      <p><code>spool</code> captures the output of SQL queries into a Unix file. Use <code>spool off</code> to stop writing to the file.</p>
+      <pre><code>#!/bin/bash
+sqlplus -s $1/$2@$3 << EOF
+spool output.txt
+select * from emp;
+spool off
+exit
+EOF</code></pre>
+      <p>Alternatively, redirect output directly:</p>
+      <pre><code>#!/bin/bash
+sqlplus -s $1/$2@$3 << EOF > unix_file
+select * from emp;
+exit
+EOF</code></pre>
+
+      <h3>@ SQL file</h3>
+      <p>Using <code>@filename</code> (where the file has a <code>.sql</code> extension), we can run a whole set of SQL queries from a single file — reducing script length and making the SQL file reusable across programs.</p>
+      <pre><code># file.sql
+select * from emp;
+select * from dept;
+select max(sal) from emp;
+update emp set sal = 4000 where empno = 1234;</code></pre>
+      <pre><code>#!/bin/bash
+sqlplus -s $1/$2@$3 << EOF
+spool file.txt
+@file.sql
+spool off
+exit
+EOF</code></pre>
+    </section>
+
+    <section id="practice">
+      <h2>Practice Scripts</h2>
+
+      <div class="qa">
+        <div class="q">1. Check for null rows in an Oracle table; email the details if any are found.</div>
+        <pre><code>#!/bin/bash
+sqlplus -s $1/$2@$3 << EOF
+spool file.txt
+select * from trade where trade_id is null;
+spool off
+exit
+EOF
+
+x=`cat file.txt | grep -v "^$" | wc -l`
+if [ $x -gt 1 ]
+then
+    cat file.txt | mailx -s "there are null rows in trade table, please check" "email_ids"
+fi</code></pre>
+      </div>
+
+      <div class="qa">
+        <div class="q">2. Monitor a growing Unix log file; email immediately if the string "broken pipe" appears.</div>
+        <pre><code>z=0
+z1=1
+mail_ids="mail_id1,mail_id2,mail_idn"
+
+check_log ()
+{
+    sed -n "${z}, ${z1}p" file.log | while read line
+    do
+        x=`echo $line | grep -i "broken pipe" | wc -l`
+        if [ $x -eq 1 ]
+        then
+            echo $line | mailx -s "error row" $mail_ids
+        fi
+    done
+}
+
+while true
+do
+    z1_new=`cat file.log | wc -l`
+    if [ $z1_new -gt $z1 ]
+    then
+        z=$z1
+        z1=$z1_new
+        check_log
+    fi
+    sleep 30
+done</code></pre>
+      </div>
+
+      <div class="qa">
+        <div class="q">3. Send a birthday wish email to each person on their birthday.</div>
+        <pre><code>#!/bin/bash
+td=`date +%d-%m`
+for i in `cat file`
+do
+    t_bday=`echo $i | awk -F ":" '$1 == "'$td'" {print $2}'`
+    t_name=`echo $t_bday | awk -F "@" '{print $1}'`
+    echo "wishing you many happy returns of the day $t_name; wish you great success" \
+        | mailx -s "happy birthday to you" $t_bday
+done</code></pre>
+      </div>
+
+      <div class="qa">
+        <div class="q">4. Check disk usage on a partition. If usage &gt; 80%, delete log files older than 90 days; if still &gt;= 80%, gzip files from the last 90 days; finally email the current available disk space.</div>
+        <pre><code>#!/bin/bash
+x=80
+y=`df -h /export1/data/00 | awk '{print $5}' | tail -1 | awk -F "%" '{print $1}'`
+
+if [ $y -ge $x ]
+then
+    cd /export1/data/00
+    find . -type f -iname "*.log" -ctime +90 -exec rm -f {} \;
+
+    y=`df -h /export1/data/00 | awk '{print $5}' | tail -1 | awk -F "%" '{print $1}'`
+    if [ $y -ge $x ]
+    then
+        find . -type f -ctime -90 -exec gzip {} \;
+    fi
+
+    avail=`df -h /export1/data/00 | awk '{print $4}' | tail -1`
+    echo "current available space in /export1/data/00 is $avail" \
+        | mailx -s "space available" "mail_id1,mail_id2,mail_idn"
+fi</code></pre>
+      </div>
+
+      <div class="qa">
+        <div class="q">5. Check the status of multiple servers and send a separate email per server.</div>
+        <pre><code>#!/bin/bash
+for i in `cat file`
+do
+    ssh username@$i "exit"
+    if [ $? -eq 0 ]
+    then
+        echo "server $i is up and able to connect" | mailx -s "server $i status" "mail_id1,mail_id2,mail_idn"
+    else
+        echo "server $i is down and unable to connect" | mailx -s "server $i status" "mail_id1,mail_id2,mail_idn"
+    fi
+done</code></pre>
+      </div>
+
+      <div class="qa">
+        <div class="q">6. Check multiple servers and send a single consolidated email with all server statuses.</div>
+        <pre><code>#!/bin/bash
+> server_details.txt
+for i in `cat file`
+do
+    ssh username@$i "exit"
+    if [ $? -eq 0 ]
+    then
+        echo "server $i is up and able to connect" >> server_details.txt
+    else
+        echo "server $i is down and unable to connect" >> server_details.txt
+    fi
+done
+
+cat server_details.txt | mailx -s "all server details" mailids</code></pre>
+      </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>
